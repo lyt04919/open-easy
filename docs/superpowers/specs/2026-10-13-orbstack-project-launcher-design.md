@@ -2,139 +2,100 @@
 
 - **日期**：2026-10-13
 - **项目名称**：Open-Easy
+- **UI 形态**：**macOS Launchpad 风格应用图标面板**（720x550 独立居中毛玻璃窗口）
 - **技术栈**：Electron + Vite + Vue 3 + Tailwind CSS + Node.js (Child Process & Docker CLI)
 
 ---
 
 ## 1. 目标与背景
 
-在 macOS 平台上使用 OrbStack 进行容器化开发时，开发者通常管理着多个由 Docker Compose 编排的项目（如个人博客、JavaWeb 前后端分离系统、各类学习 demo）。
-传统的启动流程繁琐：
-1. 打开终端或 OrbStack 客户端定位项目；
-2. 执行 `docker compose up -d` 启动多个前后端容器；
-3. 等待容器初始化、等待 Spring Boot / Node 等服务完全就绪；
-4. 手动在浏览器输入对应的 `localhost:<port>` 端口打开页面。
+在 macOS 平台上使用 OrbStack 进行容器化开发时，开发者通常管理着多个 Docker Compose 项目。传统的启动流程需要在终端或不同工具间反复跳转，记忆不同项目的端口号。
 
-**Open-Easy** 旨在提供极简的 macOS 桌面与状态栏原生体验：
-- **自动发现** 本机 OrbStack/Docker Compose 项目；
-- **智能解析** 前端对外暴露端口与访问地址；
-- **一键启动**：后台执行容器启动，并在服务真正响应时通过**健康轮询探活**，**自动拉起系统浏览器**进入前端页面；
-- **状态常驻**：支持 macOS 顶部菜单栏快捷面板与完整管理窗口双模式。
+**Open-Easy** 采用 **macOS 启动台（Launchpad）/ 原生 App 图标网格** 的全新交互形态：
+- 将每个 Docker Compose 项目抽象为一个**精美的应用图标（Squircle 苹果圆角矩形）**；
+- 智能根据技术栈（Vue/React/Java/Python/Node）自动赋予专属渐变质感徽标；
+- **极简一键直达**：点击未运行的应用图标，图标触发弹性缩放与加载光圈，后台自动执行 `docker compose up -d` 并轮询探活前端端口，服务就绪后**秒级自动调起默认浏览器直达前端页面**；
+- **状态感知**：图标下方常驻类似 macOS Dock 的绿色运行小圆点；
+- **原生管理习惯**：再次点击运行中的图标直接打开浏览器；右键图标唤起 macOS 风格 Context Menu，执行停止、重启、查看实时日志、自定义修改地址与图标等操作。
 
 ---
 
-## 2. 系统架构
+## 2. 界面与交互设计 (Launchpad App-Grid)
 
 ```mermaid
 flowchart TD
-    subgraph UI ["渲染进程 (Renderer - Vue 3 + Tailwind)"]
-        TrayView["状态栏快捷悬浮窗 (Tray Window)"]
-        Dashboard["主管理窗口 (Main Dashboard)"]
+    subgraph UI ["Open-Easy (720x550 磨砂玻璃原生窗口)"]
+        Titlebar["标题栏 (交通灯红黄绿 + 居中搜索框 + OrbStack状态)"]
+        subgraph AppGrid ["应用网格 (4列开阔排布)"]
+            App1["Vue 家乡文旅 (Squircle大图标 + 端口角标 + Dock绿色运行圆点)"]
+            App2["Java TLIAS (Squircle大图标 + 端口角标)"]
+            App3["Next 个人博客 (Squircle大图标 + 端口角标)"]
+            AppPlus["➕ 导入新项目 (虚线圆角卡片)"]
+        end
+        ContextMenu["右键菜单 (打开网页 / 停止容器 / 重启 / 查看日志 / 编辑)"]
     end
 
-    subgraph Preload ["安全隔离层 (Preload Script)"]
-        Bridge["ContextBridge IPC API"]
+    subgraph ClickFlow ["左键点击交互"]
+        StateCheck{是否已在运行?}
+        Launch["触发启动动画 + compose up -d + 探活轮询"]
+        OpenWeb["调用系统浏览器打开 URL"]
     end
 
-    subgraph Main ["主进程 (Main Process - Node.js)"]
-        TrayService["TrayManager (macOS 状态栏)"]
-        WindowService["WindowManager (窗口路由与生命周期)"]
-        OrbMgr["OrbManager (Docker & Compose CLI 适配层)"]
-        Health["HealthChecker (HTTP/TCP 探活)"]
-        Store["ConfigStore (用户配置持久化)"]
-    end
-
-    subgraph OS ["操作系统与外部运行时"]
-        OrbDaemon["OrbStack / Docker Daemon"]
-        MacBrowser["macOS 默认浏览器 (Safari / Chrome / Arc)"]
-    end
-
-    TrayView & Dashboard <--> Bridge
-    Bridge <--> Main
-    TrayService --> TrayView
-    WindowService --> Dashboard
-    OrbMgr <-->|docker compose ls/ps/up/down| OrbDaemon
-    Health -->|HTTP HEAD/GET 探活| OrbDaemon
-    Health -->|就绪通知| MacBrowser
+    App2 -->|单击| StateCheck
+    StateCheck -->|未运行| Launch -->|端口探活成功| OpenWeb
+    StateCheck -->|已在运行| OpenWeb
+    App1 -->|右键| ContextMenu
 ```
 
+### 2.1 视觉要素与规范
+1. **App 图标（Squircle）**：
+   - 尺寸：80x80px，苹果原生 `border-radius: 22.5%`；
+   - 渐变背景：深色微质感高光渐变（如 Vue 蓝绿、Java 暖橙、Python 蓝青、Next 紫罗兰）；
+   - 右上角端口角标：精致微型 Badge 显示对外端口（如 `:8081`、`:90`）；
+   - 运行中指示点：图标下方 2px 微光绿色小圆点（Dock 风格）；
+   - 启动中光晕：图标外圈播放顺滑的呼吸环光圈（Ripple/Ring 动画）。
+2. **右键操作菜单 (Context Menu)**：
+   - `🌐 打开前端网页`
+   - `🚀 启动容器`
+   - `🔄 重启容器`
+   - `⏹ 停止容器`
+   - `📋 查看实时日志`
+   - `✏️ 修改地址 / 更换图标`
+
 ---
 
-## 3. 核心模块与功能设计
+## 3. 核心模块与架构
 
 ### 3.1 项目自动发现与端口解析 (OrbManager)
-1. **自动感知已有项目**：
-   - 周期性调用 `docker compose ls --format json`，获取所有已注册的 Compose 项目及其对应的 `config_files` (docker-compose.yml 绝对路径)。
-   - 对每个项目调用 `docker compose -f <path> ps --format json`，获取各个服务的容器名、运行状态（running, exited）及对外暴露的 Host 端口。
-2. **前端服务与端口启发式推导算法**：
-   - 扫描 services，优先匹配名称包含 `frontend`、`web`、`client`、`ui`、`blog`、`app` 的服务。
-   - 提取对外发布的 Host 端口（如 80, 8081, 2025, 90, 3000, 5173 等）。
-   - 默认推导 URL 为：`http://localhost:<HostPort>`。
-   - 如果用户在界面自定义过该项目的 URL，则优先读取持久化配置中的自定义 URL。
+1. 自动执行 `docker compose ls --format json`，获取所有已注册项目及其 `docker-compose.yml` 路径；
+2. 执行 `docker compose ps --format json` 扫描各容器名称与暴露的 Host 端口；
+3. 启发式匹配技术栈与服务名，自动指派默认图标类别（Vue / React / Java / Python / Next / Docker）及前端 URL。
 
-### 3.2 启动编排与智能就绪探活 (HealthChecker)
-1. **启动指令**：
-   - 调用 `docker compose -f <path> up -d` 异步启动容器。
-   - 检测 OrbStack 是否在运行，若未运行则提示或唤醒 `open -a OrbStack`。
-2. **就绪检测**：
-   - 容器启动命令返回后，进入探活循环：每 500ms 向目标前端 URL 发起 HTTP GET/HEAD 请求（或对纯静态/TCP 端口进行 socket 连接尝试）。
-   - 超时阈值设为 30 秒。
-   - 一旦收到有效 HTTP 响应状态码（200 ~ 399）或 TCP 握手成功：
-     - 调用 Electron `shell.openExternal(targetUrl)` 打开系统默认浏览器；
-     - 向前端渲染进程发送 `project-ready` 事件，将卡片状态更新为「运行中」。
-   - 若超时仍未响应：
-     - 卡片提示「容器已启动，探活未就绪」，提供手动打开与查看日志选项。
+### 3.2 启动编排与智能探活 (HealthChecker)
+1. 执行 `docker compose -f <path> up -d`；
+2. 500ms 间隔探活目标前端 URL（HTTP 200~399 或 TCP 连接成功）；
+3. 探活成功后触发系统 `open <url>` 或 Electron `shell.openExternal(url)`；
+4. 发生异常或超时提供优雅提示与手动回退。
 
-### 3.3 本地配置持久化 (ConfigStore)
-- 存储路径：`~/Library/Application Support/open-easy/config.json`
-- 结构字段：
-  - `projects`: 自定义别名、指定前端 URL、置顶标记、自定义启动命令（如有特殊环境变量需求）。
-  - `settings`: 是否开机自启、默认使用 localhost 还是 orb.local 域名、探活超时时间。
-
-### 3.4 交互设计 (UI & Tray)
-1. **顶部状态栏图标 (Tray)**：
-   - 状态栏图标：常驻 macOS 菜单栏。
-   - 点击图标：在菜单栏下方弹出紧凑轻量面板（支持快捷搜索、最近使用的项目一键启动并进入）。
-2. **完整控制面板 (Window)**：
-   - 详尽展示每个项目的多容器运行状态（后端、前端、数据库各自独立状态）。
-   - 提供「导入本地目录」原生文件选择器。
-   - 容器实时日志抽屉（实时执行 `docker compose logs -f --tail=100`）。
+### 3.3 本地持久化 (ConfigStore)
+- 存储用户对每个应用图标的个性化设定：
+  - 自定义项目显示名称；
+  - 自定义前端 URL（如附带子路径）；
+  - 自定义图标样式（背景渐变色、Emoji 或自定义图片路径）。
 
 ---
 
-## 4. IPC 通信接口规范
+## 4. 验证与端到端测试方案
 
-| 通道名称 | 参数 | 返回值 / 事件 | 说明 |
-|---|---|---|---|
-| `orb:check-status` | 无 | `{ running: boolean }` | 检查 OrbStack 是否正常运行 |
-| `projects:list` | 无 | `ProjectItem[]` | 获取所有本地 Compose 项目及状态 |
-| `projects:launch` | `{ id: string, openBrowser: boolean }` | `{ success: boolean, message?: string }` | 启动项目并探活进入前端 |
-| `projects:stop` | `{ id: string }` | `{ success: boolean }` | 停止 Compose 项目 |
-| `projects:open-browser` | `{ url: string }` | `void` | 调用系统浏览器打开指定 URL |
-| `projects:save-config` | `{ id: string, config: ProjectConfig }` | `{ success: boolean }` | 保存项目自定义 URL 或别名 |
-| `projects:import-dir` | 无 (主进程打开原生弹窗) | `ProjectItem \| null` | 选取本地目录并导入 compose 文件 |
-
----
-
-## 5. 边界与异常处理
-
-1. **OrbStack 守护进程未启动**：
-   - 探测到 Docker Socket 不可用时，界面醒目提示「OrbStack 未运行」，并提供「一键唤醒」按钮（调用 macOS 原生 `open -a OrbStack`）。
-2. **容器端口冲突**：
-   - 捕获 `docker compose up` 错误输出（如 `bind: address already in use`），自动弹出日志排查窗口并标记具体冲突端口。
-3. **前端编译/冷启动缓慢**：
-   - 探活提供明确的加载状态反馈（「启动中，正在等待端口 8081 就绪...」），避免用户因误以为卡死而重复点击。
-
----
-
-## 6. 验证与测试方案
-
-1. **单元与集成测试**：
-   - 验证 Compose 项目自动发现能力（解析当前电脑已有的 `hometown_vue`, `2025-blog-public`, `web-ai-project02`）。
-   - 验证端口推导与启发式规则准确率。
-   - 验证 HealthChecker 轮询与超时机制。
-2. **真实场景端到端验证**：
-   - 点击 `Hometown_vue` 的「🚀 启动并进入」；
-   - 观察容器从 Exited 变为 Running；
-   - 观察探活就绪后，系统 Safari/Chrome 是否准时弹出并成功加载前端页面；
-   - 点击停止，观察容器优雅关闭。
+1. **界面体验验证**：
+   - 验证应用窗口以 740x550 优雅居中展开；
+   - 验证本机 4 个项目以精美应用图标形态正确渲染；
+   - 验证搜索框过滤图标顺滑无卡顿。
+2. **启动与浏览器联动测试**：
+   - 点击 `Hometown_vue` 图标，观察按压弹性动画与启动光晕；
+   - 观察主进程调用 `docker compose up -d`；
+   - 探活端口 8081 成功后，验证系统浏览器自动弹出并载入页面；
+   - 验证图标下方亮起绿色运行圆点；
+   - 再次点击该图标，验证直接拉起网页。
+3. **右键管理测试**：
+   - 右键点击运行中的项目，选择「停止容器」，验证容器停止且绿色圆点熄灭。
