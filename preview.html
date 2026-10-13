@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Open-Easy macOS 效果预览</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes pulse-slow {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(1.15); }
+    }
+    .status-pulse {
+      animation: pulse-slow 2s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 antialiased p-6 flex flex-col items-center min-h-screen">
+
+  <!-- macOS App Window Frame Container -->
+  <div class="w-full max-w-3xl bg-slate-800/90 border border-slate-700/80 rounded-2xl shadow-2xl backdrop-blur-xl overflow-hidden flex flex-col mt-4">
+    
+    <!-- macOS Window Titlebar -->
+    <div class="h-11 bg-slate-850/95 border-b border-slate-700/60 px-4 flex items-center justify-between select-none">
+      <div class="flex items-center space-x-2">
+        <div class="w-3 h-3 rounded-full bg-red-500/80 border border-red-600/50"></div>
+        <div class="w-3 h-3 rounded-full bg-yellow-500/80 border border-yellow-600/50"></div>
+        <div class="w-3 h-3 rounded-full bg-green-500/80 border border-green-600/50"></div>
+        <span class="ml-3 text-xs font-medium text-slate-400">Open-Easy — OrbStack 项目快捷启动器</span>
+      </div>
+
+      <!-- OrbStack Status Indicator -->
+      <div class="flex items-center space-x-2 px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 status-pulse"></span>
+        <span class="text-xs text-emerald-300 font-medium">OrbStack 运行中</span>
+      </div>
+    </div>
+
+    <!-- Toolbar / Search / Actions -->
+    <div class="p-4 border-b border-slate-700/40 flex items-center justify-between bg-slate-800/50">
+      <div class="relative w-72">
+        <input 
+          id="searchInput"
+          type="text" 
+          placeholder="搜索项目名称、端口..." 
+          class="w-full pl-9 pr-3 py-1.5 bg-slate-900/80 border border-slate-700/70 rounded-lg text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors"
+          oninput="handleSearch(this.value)"
+        />
+        <svg class="w-4 h-4 text-slate-500 absolute left-2.5 top-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+      </div>
+
+      <div class="flex items-center space-x-2">
+        <button onclick="refreshList()" class="px-3 py-1.5 bg-slate-700/60 hover:bg-slate-700 border border-slate-600/50 text-xs font-medium text-slate-300 rounded-lg transition-all flex items-center space-x-1.5">
+          <svg id="refreshIcon" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+          <span>刷新</span>
+        </button>
+        <button onclick="openImportModal()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium rounded-lg transition-all shadow-md shadow-indigo-600/20 flex items-center space-x-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+          <span>导入目录</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Toast Notification Banner -->
+    <div id="toast" class="hidden px-4 py-2.5 bg-emerald-500/15 border-b border-emerald-500/30 text-emerald-300 text-xs flex items-center justify-between transition-all">
+      <div class="flex items-center space-x-2">
+        <span class="text-base">🚀</span>
+        <span id="toastText">服务已就绪！已自动调用系统浏览器打开页面。</span>
+      </div>
+      <button onclick="dismissToast()" class="text-emerald-400 hover:text-emerald-200">✕</button>
+    </div>
+
+    <!-- Project List -->
+    <div id="projectList" class="p-4 space-y-3 overflow-y-auto max-h-[500px]">
+      <!-- Project cards will be injected by JavaScript -->
+    </div>
+
+    <!-- Bottom Status Bar -->
+    <div class="px-4 py-2 bg-slate-850/90 border-t border-slate-700/60 flex items-center justify-between text-xs text-slate-400 select-none">
+      <div class="flex items-center space-x-2">
+        <span>共识别到 <b id="projectCount" class="text-slate-200">4</b> 个本地 Compose 项目</span>
+      </div>
+      <div class="flex items-center space-x-3 text-slate-500">
+        <span>常驻顶部菜单栏</span>
+        <span>•</span>
+        <span>智能就绪探活</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Interactive Script -->
+  <script>
+    const projects = [
+      {
+        id: 'hometown_vue',
+        name: 'Hometown_vue 家乡文旅系统',
+        path: '/Users/liyuteng/Documents/IT/Project/Hometown/Hometown_vue',
+        composeFile: 'docker-compose.yml',
+        containers: ['hometown-frontend', 'hometown-backend'],
+        frontendUrl: 'http://localhost:8081',
+        backendUrl: 'http://localhost:8083',
+        status: 'stopped'
+      },
+      {
+        id: '2025-blog-public',
+        name: '2025-blog-public 个人博客',
+        path: '/Users/liyuteng/Documents/IT/Project/2025-blog-public',
+        composeFile: 'docker-compose.yml',
+        containers: ['blog-2025'],
+        frontendUrl: 'http://localhost:2025',
+        status: 'stopped'
+      },
+      {
+        id: 'web-ai-project02',
+        name: 'web-ai-project02 TLIAS 管理系统',
+        path: '/Users/liyuteng/Documents/IT/Learning/AI+JavaWeb/web-ai-project02',
+        composeFile: 'docker-compose.yml',
+        containers: ['tlias-frontend', 'tlias-backend'],
+        frontendUrl: 'http://localhost:90',
+        backendUrl: 'http://localhost:8080',
+        status: 'stopped'
+      },
+      {
+        id: 'infs605-assignment2-main',
+        name: 'INFS605 学生管理系统',
+        path: '/Users/liyuteng/Downloads/INFS605-assignment2-main',
+        composeFile: 'docker-compose.yml',
+        containers: ['frontend', 'student-profile', 'feedback', 'student-db'],
+        frontendUrl: 'http://localhost:9090',
+        status: 'running'
+      }
+    ];
+
+    let currentFilter = '';
+
+    function renderProjects() {
+      const listEl = document.getElementById('projectList');
+      const filtered = projects.filter(p => 
+        p.name.toLowerCase().includes(currentFilter.toLowerCase()) ||
+        p.frontendUrl.toLowerCase().includes(currentFilter.toLowerCase())
+      );
+      document.getElementById('projectCount').innerText = filtered.length;
+
+      listEl.innerHTML = filtered.map(p => {
+        let statusBadge = '';
+        let actionButtons = '';
+
+        if (p.status === 'stopped') {
+          statusBadge = `
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-700 text-slate-300">
+              <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-slate-400"></span>已停止
+            </span>`;
+          actionButtons = `
+            <button onclick="launchProject('${p.id}')" class="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium rounded-lg transition-all shadow-sm shadow-indigo-500/20 flex items-center space-x-1.5">
+              <span>🚀</span>
+              <span>启动并进入</span>
+            </button>`;
+        } else if (p.status === 'starting') {
+          statusBadge = `
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-500/10 text-amber-300 border border-amber-500/20">
+              <svg class="animate-spin -ml-0.5 mr-1.5 h-3 w-3 text-amber-300" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+              </svg>
+              正在启动 & 探活检测中...
+            </span>`;
+          actionButtons = `
+            <button disabled class="px-3 py-1.5 bg-slate-700 text-slate-400 text-xs font-medium rounded-lg cursor-not-allowed flex items-center space-x-1">
+              <svg class="animate-spin h-3.5 w-3.5" viewBox="0 0 24 24" fill="none">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+              </svg>
+              <span>启动中...</span>
+            </button>`;
+        } else if (p.status === 'running') {
+          statusBadge = `
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
+              <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-emerald-400 status-pulse"></span>运行中
+            </span>`;
+          actionButtons = `
+            <div class="flex items-center space-x-1.5">
+              <button onclick="openUrl('${p.frontendUrl}')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium rounded-lg transition-all shadow-sm flex items-center space-x-1">
+                <span>🌐</span>
+                <span>打开网页</span>
+              </button>
+              <button onclick="stopProject('${p.id}')" title="停止容器" class="p-1.5 bg-slate-700/60 hover:bg-red-500/20 hover:text-red-300 text-slate-400 text-xs rounded-lg transition-colors border border-slate-600/40">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/>
+                </svg>
+              </button>
+              <button onclick="restartProject('${p.id}')" title="重启容器" class="p-1.5 bg-slate-700/60 hover:bg-slate-700 text-slate-400 text-xs rounded-lg transition-colors border border-slate-600/40">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+              </button>
+            </div>`;
+        }
+
+        return `
+          <div class="p-3.5 bg-slate-850/80 hover:bg-slate-850 border border-slate-700/60 hover:border-slate-600/80 rounded-xl transition-all shadow-sm">
+            <div class="flex items-start justify-between">
+              
+              <!-- Left Info -->
+              <div class="space-y-1.5">
+                <div class="flex items-center space-x-2.5">
+                  <span class="font-semibold text-sm text-slate-100">${p.name}</span>
+                  ${statusBadge}
+                </div>
+                
+                <div class="flex items-center space-x-3 text-xs text-slate-400">
+                  <div class="flex items-center space-x-1">
+                    <span class="text-slate-500">前端:</span>
+                    <a href="javascript:void(0)" onclick="openUrl('${p.frontendUrl}')" class="text-indigo-400 hover:text-indigo-300 font-mono hover:underline">
+                      ${p.frontendUrl}
+                    </a>
+                  </div>
+                  ${p.backendUrl ? `
+                    <span class="text-slate-600">•</span>
+                    <div class="flex items-center space-x-1">
+                      <span class="text-slate-500">后端:</span>
+                      <span class="text-slate-400 font-mono">${p.backendUrl}</span>
+                    </div>` : ''}
+                  <span class="text-slate-600">•</span>
+                  <span class="text-slate-500">${p.containers.length} 个服务容器</span>
+                </div>
+
+                <div class="text-[11px] text-slate-500 font-mono truncate max-w-md" title="${p.path}">
+                  📂 ${p.path}
+                </div>
+              </div>
+
+              <!-- Right Actions -->
+              <div class="flex items-center space-x-2">
+                ${actionButtons}
+              </div>
+
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function handleSearch(val) {
+      currentFilter = val;
+      renderProjects();
+    }
+
+    function launchProject(id) {
+      const p = projects.find(item => item.id === id);
+      if (!p) return;
+
+      p.status = 'starting';
+      renderProjects();
+
+      showToast(`正在启动项目 [${p.name}] 容器并轮询探活...`);
+
+      // Simulate Docker Compose up + Health Check polling
+      setTimeout(() => {
+        p.status = 'running';
+        renderProjects();
+        showToast(`🎉 项目 [${p.name}] 服务已就绪！已自动在浏览器中打开: ${p.frontendUrl}`);
+      }, 1800);
+    }
+
+    function stopProject(id) {
+      const p = projects.find(item => item.id === id);
+      if (!p) return;
+      p.status = 'stopped';
+      renderProjects();
+      showToast(`已停止项目 [${p.name}]`);
+    }
+
+    function restartProject(id) {
+      launchProject(id);
+    }
+
+    function openUrl(url) {
+      showToast(`正在调用 macOS 默认浏览器打开: ${url}`);
+      window.open(url, '_blank');
+    }
+
+    function refreshList() {
+      const icon = document.getElementById('refreshIcon');
+      icon.classList.add('animate-spin');
+      setTimeout(() => {
+        icon.classList.remove('animate-spin');
+        showToast('项目状态已从 OrbStack 刷新');
+      }, 600);
+    }
+
+    function openImportModal() {
+      alert('在完整应用中，点击此按钮将弹出 macOS 原生文件夹选择器，选取含 docker-compose.yml 的目录即可一键纳入管理。');
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      const text = document.getElementById('toastText');
+      text.innerText = msg;
+      t.classList.remove('hidden');
+    }
+
+    function dismissToast() {
+      document.getElementById('toast').classList.add('hidden');
+    }
+
+    // Initial render
+    renderProjects();
+  </script>
+</body>
+</html>
