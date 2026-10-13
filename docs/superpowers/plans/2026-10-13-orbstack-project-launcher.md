@@ -44,13 +44,15 @@
 **Interfaces:**
 - Produces:
   - `checkOrbStatus(): Promise<{ running: boolean, version?: string }>`
+  - `ensureOrbRunning(): Promise<{ autoStarted: boolean }>` (若 OrbStack 未启动，静默执行 `open -g -a OrbStack` 并等待 Docker socket 就绪)
   - `listProjects(): Promise<Array<ProjectInfo>>` (含每个项目内部的 containers 子清单与端口映射)
-  - `startProject(composeFilePath: string): Promise<{ success: boolean, output: string }>`
+  - `startProject(composeFilePath: string): Promise<{ success: boolean, output: string }>` (内部自动前置调用 `ensureOrbRunning`)
   - `stopProject(composeFilePath: string): Promise<{ success: boolean }>`
   - `sleepAllProjects(): Promise<{ stoppedCount: number }>`
   - `getMemoryUsage(): Promise<{ containerCount: number, memoryMB: number }>`
+  - `pruneSystem(): Promise<{ spaceReclaimed: string }>` (一键清理未引用镜像与缓存)
 
-- [ ] **Step 1: 编写测试用例 `tests/orbManager.test.js`**
+- [ ] **Step 1: 编写测试用例 `tests/orbManager.test.js`**（包含 OrbStack 离线探测、自愈唤醒模拟与容器清单解析）。
 - [ ] **Step 2: 实现 `electron/services/orbManager.js`**。
 - [ ] **Step 3: 运行测试验证通过**。
 - [ ] **Step 4: 提交代码**。

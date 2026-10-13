@@ -4,10 +4,11 @@
 - **项目名称**：Open-Easy
 - **UI 形态**：**macOS 苹果原生浅色开发者工作台（Clean Studio Light Edition）**（780x580 独立居中原生毛玻璃窗口）
 - **视觉风格**：清透温润的浅灰白基底（`#fbfbfd` / `#f0f0f3`）、经典官方技术栈品牌色 Squircle 应用图标（Vue 翡翠绿、Java 暖琥珀、Next 雅黑、Python 皇家蓝与金）、白色磨砂端口角标与 Dock 翠绿发光 LED
-- **新增三大开发者核心功能**：
+- **新增四大开发者核心功能**：
   1. **全局一键休眠与内存释放**：一键优雅停止全部运行中容器，休眠待机，释放 OrbStack 内存与 CPU；
   2. **智能端口冲突扫描与释放**：启动前自动检测端口是否被本地其他进程（如 Node/Java 进程）占用并报警，支持一键定位与释放；
-  3. **一键打开代码编辑器与终端**：图标悬浮与右键支持一键在 VS Code / Cursor 或系统终端中打开项目目录。
+  3. **一键打开代码编辑器与终端**：图标悬浮与右键支持一键在 VS Code / Cursor 或系统终端中打开项目目录；
+  4. **OrbStack 自动免开机感知与自愈 (Auto-Healing)**：当 OrbStack 引擎处于未运行或休眠状态时，用户点击任意项目的一键启动，系统会自动静默无感拉起 OrbStack 引擎 (`open -g -a OrbStack` / `orb start`)，探活就绪后自动无缝继续拉起容器并打开浏览器，全程免去用户手动开软件的繁琐。
 - **技术栈**：Electron + Vite + Vue 3 + Tailwind CSS + Node.js (Child Process & Docker CLI)
 
 ---
@@ -82,15 +83,17 @@ flowchart TD
 ## 3. 核心模块与架构
 
 ### 3.1 项目自动发现与端口解析 (OrbManager)
-1. 自动执行 `docker compose ls --format json`，获取所有已注册项目及其 `docker-compose.yml` 路径；
-2. 执行 `docker compose ps --format json` 扫描各容器名称与暴露的 Host 端口；
-3. 启发式匹配技术栈与服务名，自动指派默认图标类别（Vue / React / Java / Python / Next / Docker）及前端 URL。
+1. 监听 OrbStack 守护进程与 Docker Socket 状态（支持免开机感知与自愈拉起）；
+2. 自动执行 `docker compose ls --format json`，获取所有已注册项目及其 `docker-compose.yml` 路径；
+3. 执行 `docker compose ps --format json` 扫描各容器名称与暴露的 Host 端口；
+4. 启发式匹配技术栈与服务名，自动指派默认图标类别（Vue / React / Java / Python / Next / Docker）及前端 URL。
 
-### 3.2 启动编排与智能探活 (HealthChecker)
-1. 执行 `docker compose -f <path> up -d`；
-2. 500ms 间隔探活目标前端 URL（HTTP 200~399 或 TCP 连接成功）；
-3. 探活成功后触发系统 `open <url>` 或 Electron `shell.openExternal(url)`；
-4. 发生异常或超时提供优雅提示与手动回退。
+### 3.2 启动编排与智能探活 (HealthChecker & Auto-Healing)
+1. **引擎自愈检查**：启动项目前校验 OrbStack Docker socket，若未运行则执行 `open -g -a OrbStack`（或 `orb start`），在后台静默拉起引擎，等待 socket 就绪；
+2. **容器启动**：执行 `docker compose -f <path> up -d`；
+3. **HTTP/TCP 探活**：500ms 间隔探活目标前端 URL（HTTP 200~399 或 TCP 连接成功）；
+4. **浏览器直达**：探活成功后触发系统 `open <url>` 或 Electron `shell.openExternal(url)`；
+5. **异常与超时降级**：若发生端口冲突或启动超时，通过底部 HUD 与卡片警告徽标精准定位并提供一键排查。
 
 ### 3.3 本地持久化 (ConfigStore)
 - 存储用户对每个应用图标的个性化设定：

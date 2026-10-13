@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Open-Easy 开发者工作台 (项目详情弹窗版)</title>
+  <title>Open-Easy 开发者工作台 (OrbStack 自愈版)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     @keyframes launch-wave-light {
@@ -34,7 +34,9 @@
     .led-green-light {
       box-shadow: 0 0 6px #10b981;
     }
-    /* macOS HUD Slide Animation */
+    .led-amber-light {
+      box-shadow: 0 0 6px #f59e0b;
+    }
     @keyframes hud-in {
       from { opacity: 0; transform: translate(-50%, 16px) scale(0.96); }
       to { opacity: 1; transform: translate(-50%, 0) scale(1); }
@@ -42,7 +44,6 @@
     .hud-float {
       animation: hud-in 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
-    /* Centered Modal Scale In */
     @keyframes modal-pop {
       from { opacity: 0; transform: scale(0.93) translateY(8px); }
       to { opacity: 1; transform: scale(1) translateY(0); }
@@ -83,15 +84,15 @@
       <!-- Header Quick Actions -->
       <div class="flex items-center space-x-2">
         <!-- Global Sleep / Free Memory Button -->
-        <button onclick="sleepAllContainers()" title="一键停止所有运行容器并释放 OrbStack 内存" class="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 border border-amber-200/80 text-amber-800 rounded-full text-[11px] font-medium transition-all shadow-xs flex items-center space-x-1">
+        <button onclick="sleepAllContainers()" title="一键休眠所有容器与 OrbStack 引擎，实现 0% 内存消耗" class="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 border border-amber-200/80 text-amber-800 rounded-full text-[11px] font-medium transition-all shadow-xs flex items-center space-x-1">
           <span>🌙</span>
           <span>一键休眠</span>
         </button>
 
-        <!-- OrbStack Indicator -->
-        <div class="flex items-center space-x-1.5 px-2.5 py-1 bg-emerald-50 border border-emerald-200/80 rounded-full shadow-xs">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 led-green-light"></span>
-          <span class="text-[11px] text-emerald-700 font-medium">OrbStack 正常</span>
+        <!-- OrbStack Auto-Healing Indicator -->
+        <div id="orbHeaderStatus" onclick="toggleOrbStatusForDemo()" title="点击模拟 OrbStack 开启/待机切换" class="cursor-pointer flex items-center space-x-1.5 px-2.5 py-1 bg-emerald-50 border border-emerald-200/80 rounded-full shadow-xs transition-colors">
+          <span id="orbLed" class="w-1.5 h-1.5 rounded-full bg-emerald-500 led-green-light"></span>
+          <span id="orbStatusText" class="text-[11px] text-emerald-700 font-medium">OrbStack 正常</span>
         </div>
       </div>
     </div>
@@ -102,7 +103,7 @@
         <div class="flex items-center space-x-2">
           <span class="uppercase tracking-wider text-[10px] font-semibold text-zinc-400">已接入的 Compose 项目</span>
           <span class="text-zinc-300">|</span>
-          <span class="text-zinc-500 text-[11px] font-normal">点击任意图标查看详情面板与一键启动</span>
+          <span class="text-zinc-500 text-[11px] font-normal">点击任意图标查看详情面板 · 支持引擎自愈与一键直达</span>
         </div>
         <div class="flex items-center space-x-3 text-zinc-400 text-[10px]">
           <span class="flex items-center space-x-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span><span>运行中</span></span>
@@ -124,7 +125,7 @@
         <span class="text-zinc-300">•</span>
         <span id="memoryUsage" class="text-zinc-600">容器总内存: <b>420 MB</b></span>
         <span class="text-zinc-300">•</span>
-        <span id="totalCount" class="text-zinc-500">共 4 个项目</span>
+        <span class="text-zinc-500 font-normal">⚡ 开启引擎无缝自愈</span>
       </div>
       <div class="flex items-center space-x-3 text-[11px]">
         <button onclick="cleanOrbCache()" class="hover:text-emerald-600 transition-colors flex items-center space-x-1">
@@ -134,7 +135,7 @@
       </div>
     </div>
 
-    <!-- macOS Native Floating HUD Capsule (Bottom-Center, Non-Intrusive, Auto-Fading) -->
+    <!-- macOS Native Floating HUD Capsule -->
     <div id="hudToast" class="hidden absolute bottom-14 left-1/2 transform -translate-x-1/2 z-50 hud-float pointer-events-none">
       <div class="px-4 py-2 bg-zinc-900/90 text-white border border-white/15 rounded-full shadow-[0_12px_32px_rgba(0,0,0,0.25)] backdrop-blur-xl flex items-center space-x-2.5 text-xs">
         <span id="hudIcon" class="text-sm">✨</span>
@@ -142,9 +143,7 @@
       </div>
     </div>
 
-    <!-- ============================================== -->
     <!-- 居中精致毛玻璃项目详情弹窗 (Project Detail Modal) -->
-    <!-- ============================================== -->
     <div id="detailBackdrop" class="hidden absolute inset-0 z-40 bg-black/25 backdrop-blur-sm flex items-center justify-center p-6 transition-all" onclick="handleBackdropClick(event)">
       
       <div id="detailCard" class="relative w-full max-w-[520px] bg-white/95 border border-black/10 rounded-2xl shadow-[0_25px_60px_-10px_rgba(0,0,0,0.3)] backdrop-blur-2xl overflow-hidden modal-animate flex flex-col" onclick="event.stopPropagation()">
@@ -152,9 +151,7 @@
         <!-- Modal Top Bar -->
         <div class="px-5 py-4 border-b border-black/[0.06] flex items-center justify-between bg-zinc-50/60">
           <div class="flex items-center space-x-3">
-            <!-- Squircle Icon Preview -->
             <div id="modalIconBox" class="w-12 h-12 squircle flex items-center justify-center icon-gloss-light shadow-sm">
-              <!-- Svg will be injected -->
             </div>
             <div>
               <div class="flex items-center space-x-2">
@@ -173,12 +170,11 @@
         <!-- Modal Body Content -->
         <div class="p-5 space-y-4 max-h-[380px] overflow-y-auto">
           
-          <!-- Primary Actions (Launch / Web / Stop) -->
+          <!-- Primary Actions -->
           <div id="modalActionArea" class="flex items-center space-x-2.5">
-            <!-- Injected dynamically based on project status -->
           </div>
 
-          <!-- Developer Tools Quick Bar (VS Code / Terminal / Finder) -->
+          <!-- Developer Tools Quick Bar -->
           <div class="p-3 bg-zinc-50/80 border border-black/[0.06] rounded-xl flex items-center justify-between">
             <span class="text-xs text-zinc-500 font-medium">开发工具联动:</span>
             <div class="flex items-center space-x-2">
@@ -200,7 +196,6 @@
           <div>
             <div class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 mb-2">服务与容器清单</div>
             <div id="modalContainersList" class="space-y-1.5">
-              <!-- Injected by JS -->
             </div>
           </div>
 
@@ -230,6 +225,8 @@
   </div>
 
   <script>
+    let isOrbRunning = true; // Auto-healing simulation state
+
     const projects = [
       {
         id: 'hometown_vue',
@@ -410,41 +407,34 @@
       grid.innerHTML = html;
     }
 
-    // ============================================
     // Detail Modal Controller
-    // ============================================
     function openDetailModal(id) {
       const p = projects.find(item => item.id === id);
       if (!p) return;
       currentDetailProjectId = id;
 
-      // Populate Info
       document.getElementById('modalTitle').innerText = p.name;
       document.getElementById('modalTech').innerText = p.tech;
       document.getElementById('modalUrlInput').value = p.frontendUrl;
 
-      // Icon
       const iconBox = document.getElementById('modalIconBox');
       iconBox.style = p.bgStyle;
       iconBox.innerHTML = p.iconSvg;
 
-      // Status Badge
       const badge = document.getElementById('modalStatusBadge');
       if (p.status === 'running') {
         badge.className = 'px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-100 text-emerald-700 flex items-center space-x-1';
         badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 led-green-light"></span><span>运行中</span>`;
       } else if (p.status === 'starting') {
         badge.className = 'px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-100 text-amber-700';
-        badge.innerText = '启动探活中...';
+        badge.innerText = isOrbRunning ? '启动探活中...' : '自愈唤醒 OrbStack 中...';
       } else {
         badge.className = 'px-2 py-0.5 rounded-full text-[10px] font-medium bg-zinc-100 text-zinc-600';
         badge.innerText = '已停止';
       }
 
-      // Action Area
       renderModalActions(p);
 
-      // Containers List
       const contList = document.getElementById('modalContainersList');
       contList.innerHTML = p.containers.map(c => `
         <div class="px-3 py-2 bg-zinc-50 border border-black/[0.05] rounded-lg flex items-center justify-between text-xs">
@@ -459,7 +449,6 @@
         </div>
       `).join('');
 
-      // Port Status
       const portStatus = document.getElementById('modalPortStatus');
       if (p.hasConflict) {
         portStatus.className = 'text-amber-600 font-semibold cursor-pointer';
@@ -469,7 +458,6 @@
         portStatus.innerText = '✓ 端口状态检测正常';
       }
 
-      // Show Backdrop
       document.getElementById('detailBackdrop').classList.remove('hidden');
     }
 
@@ -484,12 +472,12 @@
         `;
       } else if (p.status === 'starting') {
         area.innerHTML = `
-          <button disabled class="flex-1 py-2.5 bg-zinc-200 text-zinc-500 font-medium rounded-xl text-xs cursor-not-allowed flex items-center justify-center space-x-2">
-            <svg class="animate-spin h-4 w-4 text-zinc-500" viewBox="0 0 24 24" fill="none">
+          <button disabled class="flex-1 py-2.5 bg-zinc-200 text-zinc-600 font-medium rounded-xl text-xs cursor-not-allowed flex items-center justify-center space-x-2">
+            <svg class="animate-spin h-4 w-4 text-zinc-600" viewBox="0 0 24 24" fill="none">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
             </svg>
-            <span>正在启动容器并探活中...</span>
+            <span id="modalStartingMsg">${isOrbRunning ? '正在启动容器并探活中...' : '⚡ 正在自愈唤醒 OrbStack 引擎...'}</span>
           </button>
         `;
       } else if (p.status === 'running') {
@@ -518,27 +506,77 @@
       closeDetailModal();
     }
 
+    // ============================================
+    // Core Auto-Healing + Startup Workflow
+    // ============================================
     function launchProjectFromModal(id) {
       const p = projects.find(item => item.id === id);
       if (!p) return;
 
       if (p.hasConflict) {
-        showHudToast('⚠️', `端口 :${p.port} 正被占用，请先释放端口！`);
+        showHudToast('⚠️', `端口 :${p.port} 正被占用，请先在面板中释放！`);
         return;
       }
 
       p.status = 'starting';
       renderApps();
       openDetailModal(id);
-      showHudToast('🚀', `正在启动 [${p.name}] 并探活端口 :${p.port}...`);
 
-      setTimeout(() => {
-        p.status = 'running';
-        renderApps();
-        if (currentDetailProjectId === id) openDetailModal(id);
-        showHudToast('🎉', `[${p.name}] 服务就绪！已打开浏览器页面`);
-        window.open(p.frontendUrl, '_blank');
-      }, 1600);
+      // Auto-healing Check: If OrbStack daemon is not running
+      if (!isOrbRunning) {
+        showHudToast('⚡', '检测到 OrbStack 未启动，正在静默唤醒引擎中...');
+        setTimeout(() => {
+          isOrbRunning = true;
+          updateOrbHeaderUi(true);
+          showHudToast('🚀', `OrbStack 引擎已自愈就绪！继续启动 [${p.name}] 容器...`);
+          
+          // Proceed to start container
+          setTimeout(() => {
+            p.status = 'running';
+            renderApps();
+            if (currentDetailProjectId === id) openDetailModal(id);
+            showHudToast('🎉', `[${p.name}] 服务就绪！已打开浏览器页面`);
+            window.open(p.frontendUrl, '_blank');
+          }, 1400);
+        }, 1800);
+      } else {
+        // OrbStack already running
+        showHudToast('🚀', `正在启动 [${p.name}] 并探活端口 :${p.port}...`);
+        setTimeout(() => {
+          p.status = 'running';
+          renderApps();
+          if (currentDetailProjectId === id) openDetailModal(id);
+          showHudToast('🎉', `[${p.name}] 服务就绪！已打开浏览器页面`);
+          window.open(p.frontendUrl, '_blank');
+        }, 1500);
+      }
+    }
+
+    function toggleOrbStatusForDemo() {
+      isOrbRunning = !isOrbRunning;
+      updateOrbHeaderUi(isOrbRunning);
+      showHudToast(
+        isOrbRunning ? '🟢' : '⚪', 
+        isOrbRunning ? 'OrbStack 运行中' : 'OrbStack 已待机（点击项目将自动唤醒自愈）'
+      );
+    }
+
+    function updateOrbHeaderUi(running) {
+      const headerBox = document.getElementById('orbHeaderStatus');
+      const led = document.getElementById('orbLed');
+      const text = document.getElementById('orbStatusText');
+
+      if (running) {
+        headerBox.className = 'cursor-pointer flex items-center space-x-1.5 px-2.5 py-1 bg-emerald-50 border border-emerald-200/80 rounded-full shadow-xs transition-colors';
+        led.className = 'w-1.5 h-1.5 rounded-full bg-emerald-500 led-green-light';
+        text.className = 'text-[11px] text-emerald-700 font-medium';
+        text.innerText = 'OrbStack 正常';
+      } else {
+        headerBox.className = 'cursor-pointer flex items-center space-x-1.5 px-2.5 py-1 bg-zinc-100 border border-zinc-200 rounded-full shadow-xs transition-colors';
+        led.className = 'w-1.5 h-1.5 rounded-full bg-zinc-400';
+        text.className = 'text-[11px] text-zinc-500 font-medium';
+        text.innerText = 'OrbStack 待机 (自动唤醒)';
+      }
     }
 
     function openWebFromModal(id) {
@@ -644,7 +682,7 @@
     }
 
     function handleGlobalClick(e) {
-      // reserved for outside click handling
+      // reserved
     }
 
     renderApps();
