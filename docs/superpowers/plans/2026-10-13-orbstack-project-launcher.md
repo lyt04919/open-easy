@@ -1,10 +1,10 @@
-# Open-Easy (Launchpad 风格应用图标启动器) 实施计划
+# Open-Easy (钛金属黑曜石极简应用图标启动器) 实施计划
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 构建一个 macOS Launchpad 原生应用网格形态的 OrbStack 项目启动器（Open-Easy），将每个 Docker Compose 项目展示为精美 Squircle 应用图标，点击直接启动容器并智能探活，自动调起默认浏览器进入前端页面，并支持右键菜单管理容器生命周期。
+**Goal:** 构建一个 macOS 独立桌面启动器（Open-Easy），采用纯正黑曜石与深空灰钛金属极简质感，将本地 OrbStack 中的 Docker Compose 项目展示为冷银白微徽标的 Squircle 质感应用图标，支持单击一键后台启动并探活拉起默认浏览器，右键管理容器生命周期。
 
-**Architecture:** Electron 32+ 独立居中磨砂质感窗口（740x550），主进程通过 Node.js 处理 Docker/Compose 命令与端口 HTTP 探活，渲染进程基于 Vite + Vue 3 + Tailwind CSS 构建高保真 Launchpad 图标网格体系，ContextBridge IPC 隔离驱动。
+**Architecture:** Electron 32+ 独立居中磨砂原生质感窗口（740x550），纯冷灰无蓝紫荧光，主进程 Node.js 处理 Docker/Compose 命令与端口 HTTP 探活，渲染进程基于 Vite + Vue 3 + Tailwind CSS 构建纯粹黑曜石金属应用图标网格体系。
 
 **Tech Stack:** Electron, Node.js child_process, Vite, Vue 3, Tailwind CSS, Lucide Icons, electron-store.
 
@@ -44,7 +44,7 @@
 **Interfaces:**
 - Produces:
   - `checkOrbStatus(): Promise<{ running: boolean, version?: string }>`
-  - `listProjects(): Promise<Array<ProjectInfo>>` (含智能推导的技术栈标签与图标样式预设)
+  - `listProjects(): Promise<Array<ProjectInfo>>`
   - `startProject(composeFilePath: string): Promise<{ success: boolean, output: string }>`
   - `stopProject(composeFilePath: string): Promise<{ success: boolean }>`
 
@@ -87,7 +87,7 @@
 - Test: `tests/store.test.js`
 
 - [ ] **Step 1: 编写测试用例 `tests/store.test.js`**
-- [ ] **Step 2: 实现 `electron/services/store.js`**（保存用户自定义图标样式、别名、URL）。
+- [ ] **Step 2: 实现 `electron/services/store.js`**（保存用户自定义别名、URL）。
 - [ ] **Step 3: 运行测试并验证**。
 - [ ] **Step 4: 提交代码**。
 
@@ -99,25 +99,25 @@
 - Create: `electron/main.js`
 
 - [ ] **Step 1: 实现 `electron/preload.js`**，安全暴露 `window.api`。
-- [ ] **Step 2: 实现 `electron/main.js`**，创建 740x550 独立磨砂质感居中窗口，支持 macOS 原生 Vibrancy 毛玻璃效果。
+- [ ] **Step 2: 实现 `electron/main.js`**，创建 740x550 独立磨砂质感居中窗口，设置无边框（titleBarStyle: 'hiddenInset'）与暗黑背景色。
 - [ ] **Step 3: 提交代码**。
 
 ---
 
-### Task 6: 前端 Launchpad 应用图标网格 UI 开发
+### Task 6: 前端钛金属黑曜石应用图标网格 UI 开发
 **Files:**
 - Create: `src/main.js`
 - Create: `src/style.css`
 - Create: `src/App.vue`
-- Create: `src/components/Header.vue` (交通灯 + 居中搜索框 + OrbStack 状态)
-- Create: `src/components/AppIcon.vue` (Squircle 应用图标、按压反馈、端口角标、启动光晕、Dock 绿色小圆点)
-- Create: `src/components/ContextMenu.vue` (macOS 原生质感右键菜单)
-- Create: `src/components/EditModal.vue` (自定义图标与地址编辑)
+- Create: `src/components/Header.vue` (红黄绿交通灯 + 居中搜索胶囊 + OrbStack LED 状态)
+- Create: `src/components/AppIcon.vue` (钛金属 Squircle 图标、金属倒角光泽、冷银白徽标、铣削铝端口角标、Dock 风格 LED 指示点)
+- Create: `src/components/ContextMenu.vue` (黑曜石质感 macOS 原生右键菜单)
+- Create: `src/components/EditModal.vue` (极简地址修改弹窗)
 
-- [ ] **Step 1: 编写全局 Tailwind 样式与 Squircle 质感阴影**。
+- [ ] **Step 1: 编写全局 Tailwind 样式与金属 Bevel 倒角、纯正冷灰色系（Zinc/Stone/Neutral）**。
 - [ ] **Step 2: 开发 Header.vue 组件**。
 - [ ] **Step 3: 开发 AppIcon.vue 核心组件**：
-  - 单击未运行图标：触发弹性按压与微光波纹环，执行后台启动并探活，就绪后拉起浏览器；
+  - 单击未运行图标：触发弹性按压与纯白微光金属波纹环，执行后台启动并探活，就绪后拉起浏览器；
   - 单击运行中图标：直接打开前端页面；
   - 呈现 Dock 绿色发光运行圆点。
 - [ ] **Step 4: 开发 ContextMenu.vue 组件**（右键执行停止、重启、查看日志、编辑配置）。
@@ -132,9 +132,9 @@
 
 - [ ] **Step 1: 启动应用联调**
   `npm run dev` 调起原生窗口。
-- [ ] **Step 2: 验证 Launchpad 图标网格展示**
-  核对界面是否以 Squircle 图标形式展示本机已有项目。
+- [ ] **Step 2: 验证黑曜石钛金属图标网格展示**
+  核对界面是否以极简质感展示本机已有项目。
 - [ ] **Step 3: 验证一键点击启动并自动打开浏览器流程**
-  点击任意图标，观察波纹光圈启动、端口探活并准时调起浏览器。
+  点击任意图标，观察启动、端口探活并准时调起浏览器。
 - [ ] **Step 4: 验证右键停止与状态同步**。
 - [ ] **Step 5: 最终提交**。

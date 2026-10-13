@@ -3,131 +3,140 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Open-Easy (Launchpad 风格) 效果预览</title>
+  <title>Open-Easy (钛金属黑曜石风格) 效果预览</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    @keyframes pulse-ring {
-      0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7); }
-      70% { box-shadow: 0 0 0 14px rgba(99, 102, 241, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+    @keyframes titanium-pulse {
+      0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.35); }
+      70% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
     }
-    .launching-ring {
-      animation: pulse-ring 1.4s cubic-bezier(0.24, 0, 0.38, 1) infinite;
+    .titanium-ring {
+      animation: titanium-pulse 1.4s cubic-bezier(0.24, 0, 0.38, 1) infinite;
     }
     .squircle {
       border-radius: 22.5%;
     }
     .app-icon-press {
-      transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .app-icon-press:active {
-      transform: scale(0.88);
+      transform: scale(0.90);
     }
-    .dot-glow {
-      box-shadow: 0 0 8px #34d399;
+    .metallic-bevel {
+      box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.22), 0 10px 24px -4px rgba(0, 0, 0, 0.65);
+    }
+    .metallic-bevel:hover {
+      box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.35), 0 12px 28px -4px rgba(0, 0, 0, 0.85);
+    }
+    .led-green {
+      box-shadow: 0 0 6px rgba(52, 211, 153, 0.9);
+    }
+    .led-silver {
+      box-shadow: 0 0 6px rgba(244, 244, 245, 0.8);
     }
   </style>
 </head>
-<body class="bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-slate-100 antialiased p-8 flex flex-col items-center justify-center min-h-screen select-none" onclick="hideContextMenu()">
+<body class="bg-[#0b0b0d] text-zinc-100 antialiased p-8 flex flex-col items-center justify-center min-h-screen select-none font-sans" onclick="hideContextMenu()">
 
-  <!-- macOS App Window Frame (740 x 540) -->
-  <div class="relative w-full max-w-[740px] h-[550px] bg-slate-900/80 border border-slate-700/60 rounded-3xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] backdrop-blur-2xl overflow-hidden flex flex-col">
+  <!-- macOS Native Window Container (740 x 540) - Pure Obsidian & Space Gray -->
+  <div class="relative w-full max-w-[740px] h-[550px] bg-[#141416]/95 border border-zinc-800/90 rounded-2xl shadow-[0_30px_70px_-10px_rgba(0,0,0,0.9)] backdrop-blur-2xl overflow-hidden flex flex-col">
     
-    <!-- macOS Window Titlebar -->
-    <div class="h-12 bg-slate-850/80 border-b border-slate-800/80 px-5 flex items-center justify-between select-none">
+    <!-- Titlebar - Apple Graphite -->
+    <div class="h-11 bg-[#18181b]/90 border-b border-zinc-800/80 px-4 flex items-center justify-between select-none">
       <div class="flex items-center space-x-2">
-        <div class="w-3 h-3 rounded-full bg-red-500/80 border border-red-600/50"></div>
-        <div class="w-3 h-3 rounded-full bg-yellow-500/80 border border-yellow-600/50"></div>
-        <div class="w-3 h-3 rounded-full bg-green-500/80 border border-green-600/50"></div>
-        <span class="ml-4 text-xs font-semibold tracking-wide text-slate-300">Open-Easy</span>
+        <div class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e]"></div>
+        <div class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123]"></div>
+        <div class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29]"></div>
+        <span class="ml-4 text-xs font-medium tracking-wider text-zinc-400">Open-Easy</span>
       </div>
 
-      <!-- Top Search Pill -->
+      <!-- Center Search Capsule -->
       <div class="relative w-64">
         <input 
           id="searchInput"
           type="text" 
           placeholder="搜索项目或端口..." 
-          class="w-full pl-8 pr-3 py-1 bg-slate-800/90 border border-slate-700/80 rounded-full text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-all text-center focus:text-left"
+          class="w-full pl-8 pr-3 py-1 bg-zinc-900/90 border border-zinc-800 rounded-full text-xs text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition-colors text-center focus:text-left font-normal"
           oninput="handleSearch(this.value)"
         />
-        <svg class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        <svg class="w-3.5 h-3.5 text-zinc-500 absolute left-3 top-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
         </svg>
       </div>
 
-      <!-- OrbStack Indicator -->
-      <div class="flex items-center space-x-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
-        <span class="w-2 h-2 rounded-full bg-emerald-400 dot-glow"></span>
-        <span class="text-[11px] text-emerald-300 font-medium">OrbStack 就绪</span>
+      <!-- OrbStack Indicator (Minimalist LED) -->
+      <div class="flex items-center space-x-2 px-2.5 py-1 bg-zinc-900 border border-zinc-800 rounded-full">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 led-green"></span>
+        <span class="text-[11px] text-zinc-400 font-mono tracking-tight">OrbStack</span>
       </div>
     </div>
 
-    <!-- Notification Toast -->
-    <div id="toast" class="hidden px-5 py-2.5 bg-indigo-600/90 border-b border-indigo-400/30 text-white text-xs flex items-center justify-between shadow-lg transition-all animate-fade-in">
-      <div class="flex items-center space-x-2">
-        <span class="text-sm">✨</span>
-        <span id="toastText">服务已启动！</span>
+    <!-- Notification Toast Banner -->
+    <div id="toast" class="hidden px-5 py-2.5 bg-zinc-800 border-b border-zinc-700/80 text-zinc-200 text-xs flex items-center justify-between shadow-md transition-all">
+      <div class="flex items-center space-x-2.5">
+        <span class="w-1.5 h-1.5 rounded-full bg-zinc-100 led-silver"></span>
+        <span id="toastText">服务启动中...</span>
       </div>
-      <button onclick="dismissToast()" class="text-indigo-200 hover:text-white">✕</button>
+      <button onclick="dismissToast()" class="text-zinc-500 hover:text-zinc-300">✕</button>
     </div>
 
-    <!-- Launchpad App Icons Grid Area -->
+    <!-- Launchpad Grid Body -->
     <div class="flex-1 p-8 overflow-y-auto">
-      <div class="mb-3 px-2 flex items-center justify-between">
-        <div class="text-[11px] font-medium tracking-wider uppercase text-slate-500">我的本地项目</div>
-        <div class="text-[11px] text-slate-500">提示：左键点击直接启动进入，右键呼出管理菜单</div>
+      <div class="mb-4 px-2 flex items-center justify-between text-[11px] text-zinc-500 font-medium">
+        <div class="uppercase tracking-widest text-zinc-500 text-[10px]">本地工作区项目</div>
+        <div class="tracking-tight text-zinc-500">点击启动并进入 · 右键管理</div>
       </div>
 
-      <!-- Grid of Apps (4 Columns) -->
+      <!-- 4 Columns Grid -->
       <div id="appsGrid" class="grid grid-cols-4 gap-y-7 gap-x-4 justify-items-center">
-        <!-- Rendered by JS -->
+        <!-- Injected via JS -->
       </div>
     </div>
 
     <!-- Bottom Status Bar -->
-    <div class="h-10 bg-slate-850/60 border-t border-slate-850 px-6 flex items-center justify-between text-[11px] text-slate-500">
+    <div class="h-9 bg-[#111113] border-t border-zinc-850 px-5 flex items-center justify-between text-[11px] text-zinc-500 font-mono">
       <div class="flex items-center space-x-2">
-        <span id="activeCount" class="text-emerald-400 font-medium">1 个项目运行中</span>
-        <span>•</span>
-        <span id="totalCount">共 4 个项目</span>
+        <span id="activeCount" class="text-zinc-300 font-sans">1 个项目运行中</span>
+        <span>/</span>
+        <span id="totalCount" class="text-zinc-500 font-sans">共 4 个项目</span>
       </div>
-      <div class="flex items-center space-x-3">
-        <span>macOS Launchpad 交互体验</span>
+      <div class="flex items-center space-x-3 text-zinc-600 font-sans text-[10px]">
+        <span>Titanium Graphite Edition</span>
       </div>
     </div>
 
   </div>
 
-  <!-- macOS Style Context Menu -->
-  <div id="contextMenu" class="hidden fixed z-50 w-48 bg-slate-800/95 border border-slate-700/80 rounded-xl shadow-2xl backdrop-blur-xl py-1 text-xs text-slate-200 divide-y divide-slate-700/50">
-    <div class="px-3 py-1.5 text-[10px] uppercase font-semibold text-slate-400 tracking-wider" id="ctxProjectTitle">项目操作</div>
+  <!-- macOS Titanium Dark Context Menu -->
+  <div id="contextMenu" class="hidden fixed z-50 w-44 bg-[#1e1e22]/98 border border-zinc-700/70 rounded-xl shadow-2xl backdrop-blur-2xl py-1 text-xs text-zinc-200 divide-y divide-zinc-800">
+    <div class="px-3 py-1.5 text-[10px] uppercase font-semibold text-zinc-500 tracking-wider truncate" id="ctxProjectTitle">项目操作</div>
     <div class="py-1">
-      <button onclick="ctxAction('open')" class="w-full px-3 py-1.5 text-left hover:bg-indigo-600 hover:text-white flex items-center space-x-2 transition-colors">
-        <span>🌐</span>
+      <button onclick="ctxAction('open')" class="w-full px-3 py-1.5 text-left hover:bg-zinc-700/70 hover:text-white flex items-center space-x-2 transition-colors">
+        <svg class="w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
         <span>打开前端网页</span>
       </button>
-      <button onclick="ctxAction('launch')" class="w-full px-3 py-1.5 text-left hover:bg-indigo-600 hover:text-white flex items-center space-x-2 transition-colors">
-        <span>🚀</span>
+      <button onclick="ctxAction('launch')" class="w-full px-3 py-1.5 text-left hover:bg-zinc-700/70 hover:text-white flex items-center space-x-2 transition-colors">
+        <svg class="w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         <span>启动容器</span>
       </button>
-      <button onclick="ctxAction('restart')" class="w-full px-3 py-1.5 text-left hover:bg-indigo-600 hover:text-white flex items-center space-x-2 transition-colors">
-        <span>🔄</span>
+      <button onclick="ctxAction('restart')" class="w-full px-3 py-1.5 text-left hover:bg-zinc-700/70 hover:text-white flex items-center space-x-2 transition-colors">
+        <svg class="w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
         <span>重启容器</span>
       </button>
-      <button onclick="ctxAction('stop')" class="w-full px-3 py-1.5 text-left hover:bg-red-600 hover:text-white flex items-center space-x-2 transition-colors text-red-400">
-        <span>⏹</span>
+      <button onclick="ctxAction('stop')" class="w-full px-3 py-1.5 text-left hover:bg-zinc-700/70 hover:text-red-300 text-zinc-400 flex items-center space-x-2 transition-colors">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
         <span>停止容器</span>
       </button>
     </div>
     <div class="py-1">
-      <button onclick="ctxAction('logs')" class="w-full px-3 py-1.5 text-left hover:bg-indigo-600 hover:text-white flex items-center space-x-2 transition-colors">
-        <span>📋</span>
-        <span>查看运行日志</span>
+      <button onclick="ctxAction('logs')" class="w-full px-3 py-1.5 text-left hover:bg-zinc-700/70 hover:text-white flex items-center space-x-2 transition-colors">
+        <svg class="w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        <span>运行日志</span>
       </button>
-      <button onclick="ctxAction('edit')" class="w-full px-3 py-1.5 text-left hover:bg-indigo-600 hover:text-white flex items-center space-x-2 transition-colors">
-        <span>✏️</span>
-        <span>修改地址 / 更换图标</span>
+      <button onclick="ctxAction('edit')" class="w-full px-3 py-1.5 text-left hover:bg-zinc-700/70 hover:text-white flex items-center space-x-2 transition-colors">
+        <svg class="w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+        <span>修改地址</span>
       </button>
     </div>
   </div>
@@ -137,21 +146,18 @@
       {
         id: 'hometown_vue',
         name: '家乡文旅系统',
-        tech: 'Vue + SpringBoot',
-        tag: 'Vue',
-        bgGradient: 'from-emerald-500 to-teal-700',
-        iconSvg: `<svg class="w-10 h-10 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M2 3h3.5L12 15 18.5 3H22L12 21 2 3zm4.5 0h3L12 8l2.5-5h3L12 13 6.5 3z"/></svg>`,
+        tech: 'Vue · SpringBoot',
+        // Titanium squircle with metallic silver logo
+        iconSvg: `<svg class="w-9 h-9 text-zinc-200" viewBox="0 0 24 24" fill="currentColor"><path d="M2 3h3.5L12 15 18.5 3H22L12 21 2 3zm4.5 0h3L12 8l2.5-5h3L12 13 6.5 3z"/></svg>`,
         frontendUrl: 'http://localhost:8081',
         port: '8081',
-        status: 'stopped' // 'stopped', 'starting', 'running'
+        status: 'stopped'
       },
       {
         id: '2025-blog-public',
         name: '个人博客 2025',
-        tech: 'Next.js + Node',
-        tag: 'Next',
-        bgGradient: 'from-violet-600 to-indigo-800',
-        iconSvg: `<svg class="w-10 h-10 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L1 21h22L12 2zm0 4.5l7.5 13h-15L12 6.5z"/></svg>`,
+        tech: 'Next.js · Node',
+        iconSvg: `<svg class="w-9 h-9 text-zinc-200" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L1 21h22L12 2zm0 4.5l7.5 13h-15L12 6.5z"/></svg>`,
         frontendUrl: 'http://localhost:2025',
         port: '2025',
         status: 'stopped'
@@ -159,10 +165,8 @@
       {
         id: 'web-ai-project02',
         name: 'TLIAS 智能管理',
-        tech: 'JavaWeb + Vue',
-        tag: 'Java',
-        bgGradient: 'from-amber-500 to-orange-700',
-        iconSvg: `<svg class="w-10 h-10 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg>`,
+        tech: 'Java · Vue',
+        iconSvg: `<svg class="w-9 h-9 text-zinc-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg>`,
         frontendUrl: 'http://localhost:90',
         port: '90',
         status: 'stopped'
@@ -170,10 +174,8 @@
       {
         id: 'infs605-assignment2-main',
         name: '学生评教系统',
-        tech: 'Python + Postgres',
-        tag: 'Python',
-        bgGradient: 'from-blue-500 to-cyan-700',
-        iconSvg: `<svg class="w-10 h-10 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>`,
+        tech: 'Python · Postgres',
+        iconSvg: `<svg class="w-9 h-9 text-zinc-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>`,
         frontendUrl: 'http://localhost:9090',
         port: '9090',
         status: 'running'
@@ -205,43 +207,43 @@
             onclick="handleAppClick('${p.id}')"
             oncontextmenu="handleContextMenu(event, '${p.id}')"
           >
-            <!-- Squircle Icon Box -->
-            <div class="relative w-20 h-20 mb-2 app-icon-press group-hover:scale-105 transition-all duration-200">
+            <!-- Squircle Titanium App Icon -->
+            <div class="relative w-20 h-20 mb-2.5 app-icon-press group-hover:scale-105 transition-all duration-200">
               
-              <!-- Icon Background Squircle -->
-              <div class="w-full h-full squircle bg-gradient-to-br ${p.bgGradient} flex items-center justify-center shadow-lg group-hover:shadow-indigo-500/25 ${isStarting ? 'launching-ring' : ''}">
+              <!-- Dark Titanium Gradient with Brushed Highlight & Hairline Border -->
+              <div class="w-full h-full squircle bg-gradient-to-b from-[#2b2b30] via-[#1e1e23] to-[#151518] border border-white/10 flex items-center justify-center metallic-bevel ${isStarting ? 'titanium-ring' : ''}">
                 ${p.iconSvg}
               </div>
 
-              <!-- Top-Right Port Badge -->
-              <div class="absolute -top-1.5 -right-1.5 px-1.5 py-0.5 bg-slate-900/90 border border-slate-700 text-[10px] font-mono text-slate-300 rounded-md shadow-sm">
+              <!-- Top-Right Clean Milled Port Badge -->
+              <div class="absolute -top-1.5 -right-1.5 px-1.5 py-0.5 bg-[#141416]/95 border border-zinc-700/80 text-[10px] font-mono text-zinc-300 rounded shadow-sm">
                 :${p.port}
               </div>
 
-              <!-- Starting Spinner Overlay -->
+              <!-- Starting Clean Spinner Overlay -->
               ${isStarting ? `
-                <div class="absolute inset-0 squircle bg-slate-950/70 flex flex-col items-center justify-center backdrop-blur-xs">
-                  <svg class="animate-spin w-6 h-6 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                <div class="absolute inset-0 squircle bg-black/60 flex flex-col items-center justify-center backdrop-blur-xs">
+                  <svg class="animate-spin w-5 h-5 text-zinc-100" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
+                    <path class="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
                   </svg>
-                  <span class="text-[9px] text-slate-200 mt-1 font-medium">就绪中</span>
+                  <span class="text-[9px] text-zinc-300 mt-1 font-mono tracking-tight">探活中</span>
                 </div>
               ` : ''}
 
             </div>
 
-            <!-- App Title -->
-            <div class="text-xs font-medium text-slate-200 group-hover:text-white text-center truncate w-full px-1">
+            <!-- App Title (Refined Typography) -->
+            <div class="text-[12px] font-normal text-zinc-300 group-hover:text-white text-center truncate w-full px-1 tracking-tight">
               ${p.name}
             </div>
 
-            <!-- Running Dot Indicator (macOS Dock Style) -->
+            <!-- Running Dot Indicator (Clean LED Green) -->
             <div class="h-2 flex items-center justify-center mt-1">
               ${isRunning ? `
-                <div class="w-1.5 h-1.5 rounded-full bg-emerald-400 dot-glow"></div>
+                <div class="w-1.5 h-1.5 rounded-full bg-emerald-400 led-green"></div>
               ` : isStarting ? `
-                <div class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></div>
+                <div class="w-1.5 h-1.5 rounded-full bg-zinc-400 animate-pulse"></div>
               ` : `
                 <div class="w-1.5 h-1.5 rounded-full bg-transparent"></div>
               `}
@@ -251,18 +253,18 @@
         `;
       }).join('');
 
-      // Add "Import Project" Icon at the end
+      // Add "Import Project" Squircle Icon
       html += `
         <div 
           class="group flex flex-col items-center cursor-pointer w-28 select-none"
           onclick="importProject()"
         >
-          <div class="w-20 h-20 mb-2 squircle border-2 border-dashed border-slate-700 hover:border-indigo-500 bg-slate-800/40 hover:bg-slate-800/80 flex items-center justify-center group-hover:scale-105 transition-all">
-            <svg class="w-8 h-8 text-slate-500 group-hover:text-indigo-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          <div class="w-20 h-20 mb-2.5 squircle border border-dashed border-zinc-700/70 hover:border-zinc-500 bg-zinc-900/40 hover:bg-zinc-850/60 flex items-center justify-center group-hover:scale-105 transition-all">
+            <svg class="w-7 h-7 text-zinc-600 group-hover:text-zinc-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 4v16m8-8H4"/>
             </svg>
           </div>
-          <div class="text-xs font-medium text-slate-400 group-hover:text-indigo-300 text-center">
+          <div class="text-[12px] font-normal text-zinc-500 group-hover:text-zinc-300 text-center tracking-tight">
             导入新项目
           </div>
           <div class="h-2"></div>
@@ -277,25 +279,24 @@
       if (!p) return;
 
       if (p.status === 'running') {
-        showToast(`🌐 [${p.name}] 正在运行，已自动在浏览器中打开: ${p.frontendUrl}`);
+        showToast(`[${p.name}] 正在运行，已唤起浏览器: ${p.frontendUrl}`);
         window.open(p.frontendUrl, '_blank');
         return;
       }
 
       if (p.status === 'starting') {
-        showToast(`⏳ [${p.name}] 正在启动与探活中，请稍候...`);
+        showToast(`[${p.name}] 正在探活中，请稍候...`);
         return;
       }
 
-      // Start project!
       p.status = 'starting';
       renderApps();
-      showToast(`🚀 正在启动 [${p.name}] 容器并检测前端端口 :${p.port}...`);
+      showToast(`正在启动 [${p.name}] 容器并检测端口 :${p.port}...`);
 
       setTimeout(() => {
         p.status = 'running';
         renderApps();
-        showToast(`🎉 [${p.name}] 服务就绪！已自动为您打开浏览器: ${p.frontendUrl}`);
+        showToast(`服务已就绪！已自动为您打开浏览器: ${p.frontendUrl}`);
         window.open(p.frontendUrl, '_blank');
       }, 1600);
     }
@@ -329,23 +330,23 @@
       } else if (type === 'restart') {
         p.status = 'starting';
         renderApps();
-        showToast(`🔄 重启项目 [${p.name}]...`);
+        showToast(`重启项目 [${p.name}]...`);
         setTimeout(() => {
           p.status = 'running';
           renderApps();
-          showToast(`[${p.name}] 重启完毕并就绪`);
+          showToast(`[${p.name}] 重启就绪`);
         }, 1500);
       } else if (type === 'stop') {
         p.status = 'stopped';
         renderApps();
-        showToast(`⏹ 已停止项目 [${p.name}] 容器`);
+        showToast(`已停止项目 [${p.name}] 容器`);
       } else if (type === 'logs') {
-        alert(`【模拟日志控制台 - ${p.name}】\n[INFO] Spring Boot started on port 8083\n[INFO] Vite dev server ready at http://localhost:${p.port}`);
+        alert(`【日志控制台 - ${p.name}】\n[INFO] Spring Boot started on port 8083\n[INFO] Vite dev server ready at http://localhost:${p.port}`);
       } else if (type === 'edit') {
         const newUrl = prompt(`修改 [${p.name}] 的前端打开地址:`, p.frontendUrl);
         if (newUrl) {
           p.frontendUrl = newUrl;
-          showToast(`已更新前端地址为: ${newUrl}`);
+          showToast(`已更新前端地址: ${newUrl}`);
         }
       }
       hideContextMenu();
@@ -371,7 +372,6 @@
       document.getElementById('toast').classList.add('hidden');
     }
 
-    // Initial render
     renderApps();
   </script>
 </body>
