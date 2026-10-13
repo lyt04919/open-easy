@@ -1,10 +1,10 @@
-# Open-Easy (开发者工作台浅色增强版) 实施计划
+# Open-Easy (开发者工作台浅色增强 HUD 版) 实施计划
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 构建一个 macOS 独立桌面开发者工作台（Open-Easy），采用苹果 Clean Studio 浅色原生毛玻璃质感，将本地 OrbStack 中的 Docker Compose 项目展示为清爽明艳的 Squircle 应用图标。除了单击一键后台启动并探活拉起默认浏览器外，深度整合三大开发者高频功能：**全局一键休眠与内存释放**、**智能端口冲突检测与进程释放**、**一键在 VS Code/Cursor 或终端打开项目代码**。
+**Goal:** 构建一个 macOS 独立桌面开发者工作台（Open-Easy），采用苹果 Clean Studio 浅色原生毛玻璃质感，将本地 OrbStack 中的 Docker Compose 项目展示为清爽明艳的 Squircle 应用图标。彻底告别顶部横幅挤压界面的问题，采用**原生悬浮 HUD 胶囊吐司（自动淡出）**与**卡片就地气泡处理端口冲突**，并整合**一键后台启动探活**、**全局一键休眠与内存释放**、**一键在 VS Code/Cursor 或终端打开项目代码**三大核心能力。
 
-**Architecture:** Electron 32+ 独立居中磨砂原生质感窗口（780x580），浅灰白（#fbfbfd）高雅透光背景，主进程 Node.js 处理 Docker/Compose 命令、端口探测 (`lsof`/`net`) 与编辑器联动，渲染进程基于 Vite + Vue 3 + Tailwind CSS 构建苹果原生技术品牌浅色图标工作台。
+**Architecture:** Electron 32+ 独立居中磨砂原生质感窗口（780x540），浅灰白（#fbfbfd）高雅透光背景，主进程 Node.js 处理 Docker/Compose 命令、端口探测 (`lsof`/`net`) 与编辑器联动，渲染进程基于 Vite + Vue 3 + Tailwind CSS 构建苹果原生技术品牌浅色图标工作台，Zero-Layout-Shift 体验。
 
 **Tech Stack:** Electron, Node.js child_process, Vite, Vue 3, Tailwind CSS, Lucide Icons, electron-store.
 
@@ -51,18 +51,9 @@
   - `getMemoryUsage(): Promise<{ containerCount: number, memoryMB: number }>`
 
 - [ ] **Step 1: 编写测试用例 `tests/orbManager.test.js`**
-  验证读取现有的 `hometown_vue`、`2025-blog-public`、`web-ai-project02` 的解析正确性与休眠逻辑。
-- [ ] **Step 2: 运行测试验证失败**
-  `node tests/orbManager.test.js`。
-- [ ] **Step 3: 实现 `electron/services/orbManager.js`**
-  调用 `docker compose ls --format json` 与 `docker compose ps --format json`，实现项目发现、服务启动/停止、与全局一键休眠。
-- [ ] **Step 4: 运行测试验证通过**
-  `node tests/orbManager.test.js`。
-- [ ] **Step 5: 提交代码**
-  ```bash
-  git add electron/services/orbManager.js tests/orbManager.test.js
-  git commit -m "feat(core): implement OrbManager with sleepAll and resource stats"
-  ```
+- [ ] **Step 2: 实现 `electron/services/orbManager.js`**。
+- [ ] **Step 3: 运行测试验证通过**。
+- [ ] **Step 4: 提交代码**。
 
 ---
 
@@ -109,29 +100,30 @@
 - Create: `electron/main.js`
 
 - [ ] **Step 1: 实现 `electron/preload.js`**，安全暴露 `window.api`（包含休眠、端口检测、打开编辑器等新 API）。
-- [ ] **Step 2: 实现 `electron/main.js`**，创建 780x580 独立磨砂质感居中窗口，设置无边框（titleBarStyle: 'hiddenInset'）与浅色原生毛玻璃背景色（#fbfbfd）。
+- [ ] **Step 2: 实现 `electron/main.js`**，创建 780x540 独立磨砂质感居中窗口，设置无边框（titleBarStyle: 'hiddenInset'）与浅色原生毛玻璃背景色（#fbfbfd）。
 - [ ] **Step 3: 提交代码**。
 
 ---
 
-### Task 6: 前端开发者工作台增强版 UI 开发
+### Task 6: 前端开发者工作台增强版 UI 开发 (HUD & Popover 无推挤交互)
 **Files:**
 - Create: `src/main.js`
 - Create: `src/style.css`
 - Create: `src/App.vue`
-- Create: `src/components/Header.vue` (交通灯 + 搜索框 + 一键休眠按钮 🌙 + OrbStack 状态)
+- Create: `src/components/Header.vue` (红黄绿交通灯 + 搜索框 + 一键休眠按钮 🌙 + OrbStack 状态)
 - Create: `src/components/AppIcon.vue` (官方技术品牌色 Squircle、悬浮 VS Code 快捷按钮、端口冲突 ⚠️ 警告角标、Dock 绿色 LED)
+- Create: `src/components/HudToast.vue` (原生底部居中悬浮半透明胶囊，自动淡入淡出，零布局位移)
+- Create: `src/components/ConflictPopover.vue` (卡片就地轻量弹出的端口释放气泡)
 - Create: `src/components/ContextMenu.vue` (在 VS Code 打开、在终端打开、检测端口占用、生命周期控制)
-- Create: `src/components/ConflictBanner.vue` (端口占用警告与一键释放条)
 - Create: `src/components/FooterBar.vue` (容器总内存、未用镜像一键清理)
 - Create: `src/components/EditModal.vue` (地址与端口修改弹窗)
 
-- [ ] **Step 1: 编写全局 Tailwind 样式与浅色 Squircle 光泽高光柔和阴影**。
+- [ ] **Step 1: 编写全局 Tailwind 样式与 HUD 悬浮动画**。
 - [ ] **Step 2: 开发 Header.vue 与 FooterBar.vue 组件**（集成一键休眠与内存概览）。
-- [ ] **Step 3: 开发 AppIcon.vue 与 ConflictBanner.vue**：
-  - 呈现端口冲突告警与一键释放；
-  - 悬浮在图标右下角浮出微型 VS Code 快捷打开按钮；
-  - 单击未运行图标执行启动探活并打开浏览器。
+- [ ] **Step 3: 开发 AppIcon.vue、HudToast.vue 与 ConflictPopover.vue**：
+  - 彻底移除顶部通知条；
+  - 所有操作反馈通过 HudToast 底部悬浮胶囊展示；
+  - 端口冲突通过目标卡片下方的气泡 Popover 就地解决。
 - [ ] **Step 4: 开发 ContextMenu.vue 组件**。
 - [ ] **Step 5: 开发 EditModal.vue 组件**。
 - [ ] **Step 6: 提交代码**。
@@ -146,6 +138,6 @@
   `npm run dev` 调起原生窗口。
 - [ ] **Step 2: 验证品牌色图标网格展示与资源内存概览**。
 - [ ] **Step 3: 验证一键点击启动前端、自动打开浏览器流程**。
-- [ ] **Step 4: 验证一键在 VS Code / Cursor 中打开项目代码**。
-- [ ] **Step 5: 验证全局一键休眠功能（所有运行中容器停止）**。
+- [ ] **Step 4: 验证一键在 VS Code / Cursor 中打开项目代码与 HUD 反馈**。
+- [ ] **Step 5: 验证全局一键休眠功能与卡片就地端口释放气泡**。
 - [ ] **Step 6: 最终提交**。

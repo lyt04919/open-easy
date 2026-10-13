@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Open-Easy 开发者工作台 (浅色功能增强版)</title>
+  <title>Open-Easy 开发者工作台 (原生 HUD 体验)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     @keyframes launch-wave-light {
       0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
-      70% { box-shadow: 0 0 0 14px rgba(16, 185, 129, 0); }
+      70% { box-shadow: 0 0 0 12px rgba(16, 185, 129, 0); }
       100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
     }
     .launching-wave-light {
@@ -34,12 +34,20 @@
     .led-green-light {
       box-shadow: 0 0 6px #10b981;
     }
+    /* macOS HUD Slide Animation */
+    @keyframes hud-in {
+      from { opacity: 0; transform: translate(-50%, 16px) scale(0.96); }
+      to { opacity: 1; transform: translate(-50%, 0) scale(1); }
+    }
+    .hud-float {
+      animation: hud-in 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
   </style>
 </head>
-<body class="bg-[#e7e7eb] text-zinc-800 antialiased p-8 flex flex-col items-center justify-center min-h-screen select-none font-sans" onclick="hideContextMenu()">
+<body class="bg-[#e7e7eb] text-zinc-800 antialiased p-8 flex flex-col items-center justify-center min-h-screen select-none font-sans" onclick="handleGlobalClick(event)">
 
-  <!-- macOS Native Window Container (780 x 580) - Clean Studio Light Edition -->
-  <div class="relative w-full max-w-[780px] h-[580px] bg-[#fbfbfd]/95 border border-black/10 rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.18)] backdrop-blur-2xl overflow-hidden flex flex-col">
+  <!-- macOS Native Window Container (780 x 540) - Clean Studio Light Edition -->
+  <div class="relative w-full max-w-[780px] h-[540px] bg-[#fbfbfd]/95 border border-black/10 rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.18)] backdrop-blur-2xl overflow-hidden flex flex-col">
     
     <!-- Titlebar - Authentic macOS Light Header -->
     <div class="h-11 bg-[#f0f0f3]/90 border-b border-black/[0.08] px-4 flex items-center justify-between select-none">
@@ -47,11 +55,11 @@
         <div class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e]"></div>
         <div class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123]"></div>
         <div class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29]"></div>
-        <span class="ml-4 text-xs font-semibold tracking-wide text-zinc-600">Open-Easy 开发者工作台</span>
+        <span class="ml-4 text-xs font-semibold tracking-wide text-zinc-600">Open-Easy</span>
       </div>
 
       <!-- Center Search Capsule -->
-      <div class="relative w-60">
+      <div class="relative w-64">
         <input 
           id="searchInput"
           type="text" 
@@ -80,46 +88,23 @@
       </div>
     </div>
 
-    <!-- Notification Toast Banner -->
-    <div id="toast" class="hidden px-5 py-2 bg-emerald-600 border-b border-emerald-700 text-white text-xs flex items-center justify-between shadow-md transition-all">
-      <div class="flex items-center space-x-2.5">
-        <span class="text-sm">✨</span>
-        <span id="toastText">操作成功</span>
-      </div>
-      <button onclick="dismissToast()" class="text-emerald-200 hover:text-white">✕</button>
-    </div>
-
-    <!-- Port Conflict Alert Pill (if any) -->
-    <div id="conflictAlert" class="px-5 py-2 bg-amber-50/90 border-b border-amber-200 text-amber-800 text-[11px] flex items-center justify-between">
-      <div class="flex items-center space-x-2">
-        <span class="text-sm">⚠️</span>
-        <span><b>端口健康扫描</b>：项目 [TLIAS 智能管理] 端口 <code class="px-1 py-0.5 bg-amber-200/60 rounded text-amber-900 font-mono">:90</code> 正被本地进程占用 (PID: 34120)。</span>
-      </div>
-      <div class="flex items-center space-x-2">
-        <button onclick="resolvePortConflict('90')" class="px-2 py-0.5 bg-amber-600 hover:bg-amber-700 text-white text-[10px] font-medium rounded transition-colors">
-          一键释放端口
-        </button>
-        <button onclick="dismissConflict()" class="text-amber-500 hover:text-amber-700">✕</button>
-      </div>
-    </div>
-
-    <!-- Launchpad Grid Body -->
+    <!-- Launchpad Grid Body (CLEAN & STEADY: ZERO LAYOUT SHIFT) -->
     <div class="flex-1 p-7 overflow-y-auto">
-      <div class="mb-4 px-2 flex items-center justify-between text-[11px] text-zinc-500 font-medium">
+      <div class="mb-5 px-2 flex items-center justify-between text-[11px] text-zinc-500 font-medium">
         <div class="flex items-center space-x-2">
           <span class="uppercase tracking-wider text-[10px] font-semibold text-zinc-400">已接入的 Compose 项目</span>
           <span class="text-zinc-300">|</span>
-          <span class="text-zinc-400 text-[10px]">双击或点击启动前端 · 悬浮快捷打开编辑器</span>
+          <span class="text-zinc-400 text-[10px]">点击启动前端 · 悬浮快捷打开编辑器 · 右键管理</span>
         </div>
         <div class="flex items-center space-x-3 text-zinc-400 text-[10px]">
           <span class="flex items-center space-x-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span><span>运行中</span></span>
-          <span class="flex items-center space-x-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span><span>端口冲突</span></span>
+          <span class="flex items-center space-x-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span><span>端口占用</span></span>
           <span class="flex items-center space-x-1"><span class="w-1.5 h-1.5 rounded-full bg-zinc-300"></span><span>已休眠</span></span>
         </div>
       </div>
 
       <!-- 4 Columns Grid -->
-      <div id="appsGrid" class="grid grid-cols-4 gap-y-6 gap-x-4 justify-items-center">
+      <div id="appsGrid" class="grid grid-cols-4 gap-y-7 gap-x-4 justify-items-center">
         <!-- Injected via JS -->
       </div>
     </div>
@@ -137,6 +122,36 @@
         <button onclick="cleanOrbCache()" class="hover:text-emerald-600 transition-colors flex items-center space-x-1">
           <span>🧹</span>
           <span>清理未用镜像与缓存</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- macOS Native Floating HUD Capsule (Bottom-Center, Non-Intrusive, Auto-Fading) -->
+    <div id="hudToast" class="hidden absolute bottom-14 left-1/2 transform -translate-x-1/2 z-50 hud-float">
+      <div class="px-4 py-2 bg-zinc-900/90 text-white border border-white/15 rounded-full shadow-[0_12px_32px_rgba(0,0,0,0.25)] backdrop-blur-xl flex items-center space-x-2.5 text-xs">
+        <span id="hudIcon" class="text-sm">✨</span>
+        <span id="hudMessage" class="tracking-tight font-medium">已完成操作</span>
+      </div>
+    </div>
+
+    <!-- In-place Port Conflict Popover Modal (Pointed directly at target icon) -->
+    <div id="conflictPopover" class="hidden absolute z-50 w-72 bg-white/95 border border-black/15 rounded-2xl shadow-[0_16px_40px_rgba(0,0,0,0.18)] backdrop-blur-2xl p-4 text-xs transition-all">
+      <div class="flex items-start justify-between mb-2">
+        <div class="flex items-center space-x-2">
+          <span class="text-base">⚠️</span>
+          <span class="font-semibold text-zinc-800">端口占用冲突</span>
+        </div>
+        <button onclick="closeConflictPopover()" class="text-zinc-400 hover:text-zinc-600 text-sm">✕</button>
+      </div>
+      <p class="text-zinc-600 text-[11px] leading-relaxed mb-3">
+        项目 <b id="conflictProjectName" class="text-zinc-800">[项目]</b> 前端端口 <code id="conflictPortNum" class="px-1.5 py-0.5 bg-amber-100 text-amber-900 font-mono rounded font-semibold">:90</code> 正被本地其他进程占用 (PID: 34120)。
+      </p>
+      <div class="flex items-center justify-end space-x-2">
+        <button onclick="closeConflictPopover()" class="px-3 py-1.5 text-zinc-500 hover:bg-zinc-100 rounded-lg text-xs transition-colors">
+          稍后处理
+        </button>
+        <button onclick="resolvePortConflictAction()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-lg text-xs transition-colors shadow-xs">
+          一键释放端口 (Kill PID)
         </button>
       </div>
     </div>
@@ -216,7 +231,7 @@
         frontendUrl: 'http://localhost:90',
         port: '90',
         status: 'stopped',
-        hasConflict: true // Sample port conflict alert
+        hasConflict: true // sample conflict
       },
       {
         id: '2025-blog-public',
@@ -246,6 +261,8 @@
 
     let currentFilter = '';
     let selectedProjectId = null;
+    let pendingConflictProjectId = null;
+    let hudTimeout = null;
 
     function renderApps() {
       const grid = document.getElementById('appsGrid');
@@ -266,8 +283,9 @@
 
         return `
           <div 
+            id="app-${p.id}"
             class="group relative flex flex-col items-center cursor-pointer w-32 select-none"
-            onclick="handleAppClick('${p.id}')"
+            onclick="handleAppClick(event, '${p.id}')"
             oncontextmenu="handleContextMenu(event, '${p.id}')"
           >
             <!-- Squircle Native App Icon Box -->
@@ -281,10 +299,15 @@
                 ${p.iconSvg}
               </div>
 
-              <!-- Top-Right Crisp Light Frosted Port Badge (Or Conflict Alert) -->
+              <!-- Top-Right Crisp Port Badge or In-place Conflict Alert Badge -->
               ${p.hasConflict ? `
-                <div title="端口 :${p.port} 被占用" class="absolute -top-1.5 -right-1.5 px-1.5 py-0.5 bg-amber-500 border border-amber-300 text-[10px] font-mono text-white font-bold rounded-md shadow-xs animate-bounce">
-                  ⚠️ :${p.port}
+                <div 
+                  onclick="event.stopPropagation(); showConflictPopover(event, '${p.id}')"
+                  title="点击查看冲突详情并一键释放" 
+                  class="absolute -top-2 -right-2 px-1.5 py-0.5 bg-amber-500 hover:bg-amber-600 border border-white text-[10px] font-mono text-white font-bold rounded-full shadow-md flex items-center space-x-0.5 animate-pulse"
+                >
+                  <span>⚠️</span>
+                  <span>:${p.port}</span>
                 </div>
               ` : `
                 <div class="absolute -top-1.5 -right-1.5 px-1.5 py-0.5 bg-white/95 backdrop-blur-md border border-black/10 text-[10px] font-mono text-zinc-700 font-medium rounded-md shadow-xs">
@@ -294,7 +317,7 @@
 
               <!-- Hover Quick Action Pill: Open in VS Code -->
               <div 
-                onclick="event.stopPropagation(); openEditor('${p.path}')"
+                onclick="event.stopPropagation(); openEditor('${p.name}', '${p.path}')"
                 title="在 VS Code / Cursor 中打开代码"
                 class="absolute -bottom-1 -right-1 opacity-0 group-hover:opacity-100 transition-opacity bg-white hover:bg-zinc-100 border border-black/15 text-zinc-700 p-1 rounded-full shadow-md z-10"
               >
@@ -357,72 +380,102 @@
       grid.innerHTML = html;
     }
 
-    function handleAppClick(id) {
+    function handleAppClick(event, id) {
       const p = projects.find(item => item.id === id);
       if (!p) return;
 
       if (p.hasConflict) {
-        showToast(`⚠️ 项目 [${p.name}] 端口 :${p.port} 正被占用，请先释放或更换端口！`);
+        showConflictPopover(event, id);
         return;
       }
 
       if (p.status === 'running') {
-        showToast(`[${p.name}] 正在运行，已唤起默认浏览器: ${p.frontendUrl}`);
+        showHudToast('🌐', `[${p.name}] 正在运行，已唤起浏览器`);
         window.open(p.frontendUrl, '_blank');
         return;
       }
 
       if (p.status === 'starting') {
-        showToast(`[${p.name}] 正在启动并检测端口中...`);
+        showHudToast('⏳', `[${p.name}] 正在启动并检测端口中...`);
         return;
       }
 
       p.status = 'starting';
       renderApps();
-      showToast(`正在启动 [${p.name}] 容器，并探活端口 :${p.port}...`);
+      showHudToast('🚀', `正在启动 [${p.name}] 并探活端口 :${p.port}...`);
 
       setTimeout(() => {
         p.status = 'running';
         renderApps();
-        showToast(`🎉 服务已就绪！已自动在浏览器中打开: ${p.frontendUrl}`);
+        showHudToast('🎉', `[${p.name}] 服务就绪！已打开浏览器页面`);
         window.open(p.frontendUrl, '_blank');
       }, 1600);
     }
 
-    function openEditor(path) {
-      showToast(`💻 正在使用默认编辑器 (VS Code / Cursor) 打开目录: ${path}`);
+    function showConflictPopover(e, id) {
+      const p = projects.find(item => item.id === id);
+      if (!p) return;
+      pendingConflictProjectId = id;
+
+      document.getElementById('conflictProjectName').innerText = p.name;
+      document.getElementById('conflictPortNum').innerText = `:${p.port}`;
+
+      const popover = document.getElementById('conflictPopover');
+      const targetEl = document.getElementById(`app-${id}`);
+      const rect = targetEl.getBoundingClientRect();
+      const parentRect = targetEl.closest('.relative').getBoundingClientRect();
+
+      popover.style.left = `${rect.left - parentRect.left - 40}px`;
+      popover.style.top = `${rect.bottom - parentRect.top + 8}px`;
+      popover.classList.remove('hidden');
+    }
+
+    function closeConflictPopover() {
+      document.getElementById('conflictPopover').classList.add('hidden');
+    }
+
+    function resolvePortConflictAction() {
+      const p = projects.find(item => item.id === pendingConflictProjectId);
+      if (p) {
+        p.hasConflict = false;
+        closeConflictPopover();
+        renderApps();
+        showHudToast('✅', `端口 :${p.port} 已成功释放 (PID: 34120 已结束)`);
+      }
+    }
+
+    function openEditor(name, path) {
+      showHudToast('💻', `已在 VS Code / Cursor 中打开 [${name}]`);
     }
 
     function sleepAllContainers() {
       const runningProjects = projects.filter(p => p.status === 'running');
       if (runningProjects.length === 0) {
-        showToast('当前没有正在运行的容器需要休眠');
+        showHudToast('💤', '当前没有运行中的容器需要休眠');
         return;
       }
       runningProjects.forEach(p => p.status = 'stopped');
       renderApps();
-      showToast(`🌙 已一键休眠所有项目容器，释放 OrbStack 内存与 CPU！`);
-    }
-
-    function resolvePortConflict(port) {
-      const p = projects.find(item => item.port === port);
-      if (p) {
-        p.hasConflict = false;
-        renderApps();
-        dismissConflict();
-        showToast(`✅ 端口 :${port} 冲突已解除 (已结束占用进程 PID: 34120)`);
-      }
-    }
-
-    function dismissConflict() {
-      document.getElementById('conflictAlert').classList.add('hidden');
+      showHudToast('🌙', `已一键休眠所有容器，已释放 OrbStack 内存与 CPU`);
     }
 
     function cleanOrbCache() {
-      showToast('🧹 正在调用 `docker system prune` 清理未引用的悬空镜像与容器缓存...');
+      showHudToast('🧹', '正在清理未引用镜像与缓存...');
       setTimeout(() => {
-        showToast('✅ OrbStack 缓存清理完成，已回收约 1.4 GB 磁盘空间！');
+        showHudToast('✨', 'OrbStack 缓存清理完成，已回收约 1.4 GB 空间');
       }, 1200);
+    }
+
+    function showHudToast(icon, message) {
+      const hud = document.getElementById('hudToast');
+      document.getElementById('hudIcon').innerText = icon;
+      document.getElementById('hudMessage').innerText = message;
+      hud.classList.remove('hidden');
+
+      if (hudTimeout) clearTimeout(hudTimeout);
+      hudTimeout = setTimeout(() => {
+        hud.classList.add('hidden');
+      }, 2300);
     }
 
     function handleContextMenu(e, id) {
@@ -442,39 +495,51 @@
       document.getElementById('contextMenu').classList.add('hidden');
     }
 
+    function handleGlobalClick(e) {
+      hideContextMenu();
+      const popover = document.getElementById('conflictPopover');
+      if (!popover.contains(e.target) && !e.target.closest('[onclick*="showConflictPopover"]')) {
+        closeConflictPopover();
+      }
+    }
+
     function ctxAction(type) {
       const p = projects.find(item => item.id === selectedProjectId);
       if (!p) return;
 
       if (type === 'vscode') {
-        openEditor(p.path);
+        openEditor(p.name, p.path);
       } else if (type === 'terminal') {
-        showToast(`🖥️ 正在终端中定位到: ${p.path}`);
+        showHudToast('🖥️', `已在系统终端中打开: ${p.name}`);
       } else if (type === 'open') {
         window.open(p.frontendUrl, '_blank');
-        showToast(`在浏览器中打开: ${p.frontendUrl}`);
+        showHudToast('🌐', `已打开前端网页: ${p.frontendUrl}`);
       } else if (type === 'launch') {
-        handleAppClick(p.id);
+        handleAppClick(null, p.id);
       } else if (type === 'restart') {
         p.status = 'starting';
         renderApps();
-        showToast(`重启项目 [${p.name}]...`);
+        showHudToast('🔄', `正在重启项目 [${p.name}]...`);
         setTimeout(() => {
           p.status = 'running';
           renderApps();
-          showToast(`[${p.name}] 重启就绪`);
+          showHudToast('✅', `[${p.name}] 重启完毕`);
         }, 1500);
       } else if (type === 'stop') {
         p.status = 'stopped';
         renderApps();
-        showToast(`已停止项目 [${p.name}] 容器`);
+        showHudToast('⏹', `已停止 [${p.name}] 容器`);
       } else if (type === 'checkPort') {
-        showToast(`🔍 正在扫描端口 :${p.port} 占用状态... [正常，未被其他进程抢占]`);
+        if (p.hasConflict) {
+          showHudToast('⚠️', `端口 :${p.port} 正被占用，点击图标角标一键释放`);
+        } else {
+          showHudToast('🔍', `端口 :${p.port} 状态正常，无冲突`);
+        }
       } else if (type === 'edit') {
         const newUrl = prompt(`修改 [${p.name}] 的前端打开地址:`, p.frontendUrl);
         if (newUrl) {
           p.frontendUrl = newUrl;
-          showToast(`已更新前端地址: ${newUrl}`);
+          showHudToast('✏️', `前端地址已更新为: ${newUrl}`);
         }
       }
       hideContextMenu();
@@ -486,18 +551,7 @@
     }
 
     function importProject() {
-      alert('在完整应用中，将唤起 macOS 原生文件夹选择器，选择含 docker-compose.yml 的目录即可将其作为新应用图标加入！');
-    }
-
-    function showToast(msg) {
-      const t = document.getElementById('toast');
-      const text = document.getElementById('toastText');
-      text.innerText = msg;
-      t.classList.remove('hidden');
-    }
-
-    function dismissToast() {
-      document.getElementById('toast').classList.add('hidden');
+      showHudToast('📁', '选择本地含 docker-compose.yml 的目录即可导入');
     }
 
     renderApps();
