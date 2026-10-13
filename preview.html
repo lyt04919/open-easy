@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Open-Easy (苹果原生浅色主题) 效果预览</title>
+  <title>Open-Easy 开发者工作台 (浅色功能增强版)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     @keyframes launch-wave-light {
       0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
-      70% { box-shadow: 0 0 0 12px rgba(16, 185, 129, 0); }
+      70% { box-shadow: 0 0 0 14px rgba(16, 185, 129, 0); }
       100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
     }
     .launching-wave-light {
@@ -26,21 +26,20 @@
     .app-icon:active {
       transform: translateY(1px) scale(0.92);
     }
-    /* macOS Authentic Light App Icon Shadow & Specular Gloss */
     .icon-gloss-light {
-      box-shadow: inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.65), 
-                  0 10px 22px -4px rgba(0, 0, 0, 0.14), 
-                  0 3px 7px -1px rgba(0, 0, 0, 0.08);
+      box-shadow: inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.7), 
+                  0 10px 24px -4px rgba(0, 0, 0, 0.12), 
+                  0 3px 8px -1px rgba(0, 0, 0, 0.06);
     }
     .led-green-light {
       box-shadow: 0 0 6px #10b981;
     }
   </style>
 </head>
-<body class="bg-[#e5e5ea] text-zinc-800 antialiased p-8 flex flex-col items-center justify-center min-h-screen select-none font-sans" onclick="hideContextMenu()">
+<body class="bg-[#e7e7eb] text-zinc-800 antialiased p-8 flex flex-col items-center justify-center min-h-screen select-none font-sans" onclick="hideContextMenu()">
 
-  <!-- macOS Native Window Container (740 x 540) - Apple Clean Studio Light -->
-  <div class="relative w-full max-w-[740px] h-[550px] bg-[#fbfbfd]/95 border border-black/10 rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.18)] backdrop-blur-2xl overflow-hidden flex flex-col">
+  <!-- macOS Native Window Container (780 x 580) - Clean Studio Light Edition -->
+  <div class="relative w-full max-w-[780px] h-[580px] bg-[#fbfbfd]/95 border border-black/10 rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.18)] backdrop-blur-2xl overflow-hidden flex flex-col">
     
     <!-- Titlebar - Authentic macOS Light Header -->
     <div class="h-11 bg-[#f0f0f3]/90 border-b border-black/[0.08] px-4 flex items-center justify-between select-none">
@@ -48,15 +47,15 @@
         <div class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e]"></div>
         <div class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123]"></div>
         <div class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29]"></div>
-        <span class="ml-4 text-xs font-semibold tracking-wide text-zinc-600">Open-Easy</span>
+        <span class="ml-4 text-xs font-semibold tracking-wide text-zinc-600">Open-Easy 开发者工作台</span>
       </div>
 
       <!-- Center Search Capsule -->
-      <div class="relative w-64">
+      <div class="relative w-60">
         <input 
           id="searchInput"
           type="text" 
-          placeholder="搜索项目或端口..." 
+          placeholder="搜索项目、技术栈或端口..." 
           class="w-full pl-8 pr-3 py-1 bg-white/90 border border-black/10 rounded-full text-xs text-zinc-700 placeholder-zinc-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 transition-all text-center focus:text-left font-normal shadow-xs"
           oninput="handleSearch(this.value)"
         />
@@ -65,52 +64,102 @@
         </svg>
       </div>
 
-      <!-- OrbStack Indicator (Clean Light Pill) -->
-      <div class="flex items-center space-x-2 px-2.5 py-1 bg-emerald-50 border border-emerald-200/80 rounded-full shadow-xs">
-        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 led-green-light"></span>
-        <span class="text-[11px] text-emerald-700 font-medium">OrbStack 正常</span>
+      <!-- Header Quick Actions -->
+      <div class="flex items-center space-x-2">
+        <!-- Global Sleep / Free Memory Button -->
+        <button onclick="sleepAllContainers()" title="一键停止所有运行容器并释放 OrbStack 内存" class="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 border border-amber-200/80 text-amber-800 rounded-full text-[11px] font-medium transition-all shadow-xs flex items-center space-x-1">
+          <span>🌙</span>
+          <span>一键休眠</span>
+        </button>
+
+        <!-- OrbStack Indicator -->
+        <div class="flex items-center space-x-1.5 px-2.5 py-1 bg-emerald-50 border border-emerald-200/80 rounded-full shadow-xs">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 led-green-light"></span>
+          <span class="text-[11px] text-emerald-700 font-medium">OrbStack 正常</span>
+        </div>
       </div>
     </div>
 
     <!-- Notification Toast Banner -->
-    <div id="toast" class="hidden px-5 py-2.5 bg-emerald-600 border-b border-emerald-700 text-white text-xs flex items-center justify-between shadow-md transition-all">
+    <div id="toast" class="hidden px-5 py-2 bg-emerald-600 border-b border-emerald-700 text-white text-xs flex items-center justify-between shadow-md transition-all">
       <div class="flex items-center space-x-2.5">
-        <span class="text-sm">🚀</span>
-        <span id="toastText">服务启动中...</span>
+        <span class="text-sm">✨</span>
+        <span id="toastText">操作成功</span>
       </div>
       <button onclick="dismissToast()" class="text-emerald-200 hover:text-white">✕</button>
     </div>
 
+    <!-- Port Conflict Alert Pill (if any) -->
+    <div id="conflictAlert" class="px-5 py-2 bg-amber-50/90 border-b border-amber-200 text-amber-800 text-[11px] flex items-center justify-between">
+      <div class="flex items-center space-x-2">
+        <span class="text-sm">⚠️</span>
+        <span><b>端口健康扫描</b>：项目 [TLIAS 智能管理] 端口 <code class="px-1 py-0.5 bg-amber-200/60 rounded text-amber-900 font-mono">:90</code> 正被本地进程占用 (PID: 34120)。</span>
+      </div>
+      <div class="flex items-center space-x-2">
+        <button onclick="resolvePortConflict('90')" class="px-2 py-0.5 bg-amber-600 hover:bg-amber-700 text-white text-[10px] font-medium rounded transition-colors">
+          一键释放端口
+        </button>
+        <button onclick="dismissConflict()" class="text-amber-500 hover:text-amber-700">✕</button>
+      </div>
+    </div>
+
     <!-- Launchpad Grid Body -->
-    <div class="flex-1 p-8 overflow-y-auto">
+    <div class="flex-1 p-7 overflow-y-auto">
       <div class="mb-4 px-2 flex items-center justify-between text-[11px] text-zinc-500 font-medium">
-        <div class="uppercase tracking-wider text-[10px] font-semibold text-zinc-400">已接入的 Compose 项目</div>
-        <div class="text-zinc-400">点击应用图标启动 · 右键管理</div>
+        <div class="flex items-center space-x-2">
+          <span class="uppercase tracking-wider text-[10px] font-semibold text-zinc-400">已接入的 Compose 项目</span>
+          <span class="text-zinc-300">|</span>
+          <span class="text-zinc-400 text-[10px]">双击或点击启动前端 · 悬浮快捷打开编辑器</span>
+        </div>
+        <div class="flex items-center space-x-3 text-zinc-400 text-[10px]">
+          <span class="flex items-center space-x-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span><span>运行中</span></span>
+          <span class="flex items-center space-x-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span><span>端口冲突</span></span>
+          <span class="flex items-center space-x-1"><span class="w-1.5 h-1.5 rounded-full bg-zinc-300"></span><span>已休眠</span></span>
+        </div>
       </div>
 
       <!-- 4 Columns Grid -->
-      <div id="appsGrid" class="grid grid-cols-4 gap-y-7 gap-x-4 justify-items-center">
+      <div id="appsGrid" class="grid grid-cols-4 gap-y-6 gap-x-4 justify-items-center">
         <!-- Injected via JS -->
       </div>
     </div>
 
-    <!-- Bottom Status Bar -->
-    <div class="h-9 bg-[#f4f4f7] border-t border-black/[0.06] px-5 flex items-center justify-between text-[11px] text-zinc-500 font-sans">
-      <div class="flex items-center space-x-2">
+    <!-- Bottom Status Bar with Resource Metrics -->
+    <div class="h-10 bg-[#f4f4f7] border-t border-black/[0.06] px-5 flex items-center justify-between text-[11px] text-zinc-500 font-sans">
+      <div class="flex items-center space-x-3">
         <span id="activeCount" class="text-emerald-600 font-medium">1 个项目运行中</span>
-        <span class="text-zinc-400">•</span>
-        <span id="totalCount" class="text-zinc-600">共 4 个项目</span>
+        <span class="text-zinc-300">•</span>
+        <span id="memoryUsage" class="text-zinc-600">容器总内存: <b>420 MB</b></span>
+        <span class="text-zinc-300">•</span>
+        <span id="totalCount" class="text-zinc-500">共 4 个项目</span>
       </div>
-      <div class="flex items-center space-x-3 text-zinc-400 text-[10px]">
-        <span>Apple Clean Studio Light Edition</span>
+      <div class="flex items-center space-x-3 text-[11px]">
+        <button onclick="cleanOrbCache()" class="hover:text-emerald-600 transition-colors flex items-center space-x-1">
+          <span>🧹</span>
+          <span>清理未用镜像与缓存</span>
+        </button>
       </div>
     </div>
 
   </div>
 
-  <!-- macOS Light Context Menu -->
-  <div id="contextMenu" class="hidden fixed z-50 w-44 bg-white/95 border border-black/10 rounded-xl shadow-[0_15px_35px_-5px_rgba(0,0,0,0.2)] backdrop-blur-2xl py-1 text-xs text-zinc-700 divide-y divide-zinc-100">
+  <!-- macOS Enhanced Context Menu -->
+  <div id="contextMenu" class="hidden fixed z-50 w-52 bg-white/95 border border-black/10 rounded-xl shadow-[0_15px_35px_-5px_rgba(0,0,0,0.2)] backdrop-blur-2xl py-1 text-xs text-zinc-700 divide-y divide-zinc-100">
     <div class="px-3 py-1.5 text-[10px] uppercase font-semibold text-zinc-400 tracking-wider truncate" id="ctxProjectTitle">项目操作</div>
+    
+    <!-- Code Editor Section -->
+    <div class="py-1">
+      <button onclick="ctxAction('vscode')" class="w-full px-3 py-1.5 text-left hover:bg-emerald-500 hover:text-white flex items-center space-x-2 transition-colors">
+        <svg class="w-3.5 h-3.5 text-blue-500 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+        <span>在 VS Code / Cursor 中打开</span>
+      </button>
+      <button onclick="ctxAction('terminal')" class="w-full px-3 py-1.5 text-left hover:bg-emerald-500 hover:text-white flex items-center space-x-2 transition-colors">
+        <svg class="w-3.5 h-3.5 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        <span>在终端中打开目录</span>
+      </button>
+    </div>
+
+    <!-- Container Lifecycle Section -->
     <div class="py-1">
       <button onclick="ctxAction('open')" class="w-full px-3 py-1.5 text-left hover:bg-emerald-500 hover:text-white flex items-center space-x-2 transition-colors">
         <span>🌐</span>
@@ -126,13 +175,15 @@
       </button>
       <button onclick="ctxAction('stop')" class="w-full px-3 py-1.5 text-left hover:bg-red-500 hover:text-white flex items-center space-x-2 transition-colors text-red-500">
         <span>⏹</span>
-        <span>停止容器</span>
+        <span>停止容器 (释放资源)</span>
       </button>
     </div>
+
+    <!-- Diagnostic & Edit Section -->
     <div class="py-1">
-      <button onclick="ctxAction('logs')" class="w-full px-3 py-1.5 text-left hover:bg-zinc-100 flex items-center space-x-2 transition-colors">
-        <span>📋</span>
-        <span>查看运行日志</span>
+      <button onclick="ctxAction('checkPort')" class="w-full px-3 py-1.5 text-left hover:bg-zinc-100 flex items-center space-x-2 transition-colors">
+        <span>🔍</span>
+        <span>检测端口占用状态</span>
       </button>
       <button onclick="ctxAction('edit')" class="w-full px-3 py-1.5 text-left hover:bg-zinc-100 flex items-center space-x-2 transition-colors">
         <span>✏️</span>
@@ -147,45 +198,49 @@
         id: 'hometown_vue',
         name: '家乡文旅系统',
         tech: 'Vue 3 · SpringBoot',
-        // Authentic Vue Emerald / Forest Green Gradient
+        path: '/Users/liyuteng/Documents/IT/Project/Hometown/Hometown_vue',
         bgStyle: 'background: linear-gradient(145deg, #42b883 0%, #35495e 100%);',
         iconSvg: `<svg class="w-9 h-9 text-white drop-shadow-md" viewBox="0 0 24 24" fill="currentColor"><path d="M2 3h3.5L12 15 18.5 3H22L12 21 2 3zm4.5 0h3L12 8l2.5-5h3L12 13 6.5 3z"/></svg>`,
         frontendUrl: 'http://localhost:8081',
         port: '8081',
-        status: 'stopped'
+        status: 'stopped',
+        hasConflict: false
       },
       {
         id: 'web-ai-project02',
         name: 'TLIAS 智能管理',
         tech: 'Java · Spring Boot',
-        // Authentic Java Warm Amber Crimson Gradient
+        path: '/Users/liyuteng/Documents/IT/Learning/AI+JavaWeb/web-ai-project02',
         bgStyle: 'background: linear-gradient(145deg, #f39c12 0%, #d35400 100%);',
         iconSvg: `<svg class="w-9 h-9 text-white drop-shadow-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg>`,
         frontendUrl: 'http://localhost:90',
         port: '90',
-        status: 'stopped'
+        status: 'stopped',
+        hasConflict: true // Sample port conflict alert
       },
       {
         id: '2025-blog-public',
         name: '个人博客 2025',
         tech: 'Next.js · React',
-        // Authentic Next.js Deep Slate/Black with crisp white triangle
+        path: '/Users/liyuteng/Documents/IT/Project/2025-blog-public',
         bgStyle: 'background: linear-gradient(145deg, #1f2937 0%, #111827 100%);',
         iconSvg: `<svg class="w-9 h-9 text-white drop-shadow-md" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L1 21h22L12 2zm0 4.5l7.5 13h-15L12 6.5z"/></svg>`,
         frontendUrl: 'http://localhost:2025',
         port: '2025',
-        status: 'stopped'
+        status: 'stopped',
+        hasConflict: false
       },
       {
         id: 'infs605-assignment2-main',
         name: '学生评教系统',
         tech: 'Python · PostgreSQL',
-        // Authentic Python Deep Sapphire Blue & Gold
+        path: '/Users/liyuteng/Downloads/INFS605-assignment2-main',
         bgStyle: 'background: linear-gradient(145deg, #3776ab 0%, #1e415f 100%);',
         iconSvg: `<svg class="w-9 h-9 text-[#ffd43b] drop-shadow-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>`,
         frontendUrl: 'http://localhost:9090',
         port: '9090',
-        status: 'running'
+        status: 'running',
+        hasConflict: false
       }
     ];
 
@@ -203,6 +258,7 @@
       const runningCount = projects.filter(p => p.status === 'running').length;
       document.getElementById('activeCount').innerText = `${runningCount} 个项目运行中`;
       document.getElementById('totalCount').innerText = `共 ${projects.length} 个项目`;
+      document.getElementById('memoryUsage').innerHTML = `容器总内存: <b>${runningCount * 210 + 20} MB</b>`;
 
       let html = filtered.map(p => {
         const isRunning = p.status === 'running';
@@ -210,12 +266,12 @@
 
         return `
           <div 
-            class="group flex flex-col items-center cursor-pointer w-28 select-none"
+            class="group relative flex flex-col items-center cursor-pointer w-32 select-none"
             onclick="handleAppClick('${p.id}')"
             oncontextmenu="handleContextMenu(event, '${p.id}')"
           >
             <!-- Squircle Native App Icon Box -->
-            <div class="relative w-20 h-20 mb-2.5 app-icon">
+            <div class="relative w-20 h-20 mb-2 app-icon">
               
               <!-- Brand Gradient Squircle with Inset Specular Highlight -->
               <div 
@@ -225,9 +281,26 @@
                 ${p.iconSvg}
               </div>
 
-              <!-- Top-Right Crisp Light Frosted Port Badge -->
-              <div class="absolute -top-1.5 -right-1.5 px-1.5 py-0.5 bg-white/95 backdrop-blur-md border border-black/10 text-[10px] font-mono text-zinc-700 font-medium rounded-md shadow-xs">
-                :${p.port}
+              <!-- Top-Right Crisp Light Frosted Port Badge (Or Conflict Alert) -->
+              ${p.hasConflict ? `
+                <div title="端口 :${p.port} 被占用" class="absolute -top-1.5 -right-1.5 px-1.5 py-0.5 bg-amber-500 border border-amber-300 text-[10px] font-mono text-white font-bold rounded-md shadow-xs animate-bounce">
+                  ⚠️ :${p.port}
+                </div>
+              ` : `
+                <div class="absolute -top-1.5 -right-1.5 px-1.5 py-0.5 bg-white/95 backdrop-blur-md border border-black/10 text-[10px] font-mono text-zinc-700 font-medium rounded-md shadow-xs">
+                  :${p.port}
+                </div>
+              `}
+
+              <!-- Hover Quick Action Pill: Open in VS Code -->
+              <div 
+                onclick="event.stopPropagation(); openEditor('${p.path}')"
+                title="在 VS Code / Cursor 中打开代码"
+                class="absolute -bottom-1 -right-1 opacity-0 group-hover:opacity-100 transition-opacity bg-white hover:bg-zinc-100 border border-black/15 text-zinc-700 p-1 rounded-full shadow-md z-10"
+              >
+                <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+                </svg>
               </div>
 
               <!-- Starting Spinner Overlay -->
@@ -266,10 +339,10 @@
       // Add "Import Project" Squircle Icon (Clean Light Theme)
       html += `
         <div 
-          class="group flex flex-col items-center cursor-pointer w-28 select-none"
+          class="group flex flex-col items-center cursor-pointer w-32 select-none"
           onclick="importProject()"
         >
-          <div class="w-20 h-20 mb-2.5 squircle border-2 border-dashed border-zinc-300 hover:border-emerald-500 bg-zinc-100/70 hover:bg-emerald-50/40 flex items-center justify-center app-icon shadow-xs">
+          <div class="w-20 h-20 mb-2 squircle border-2 border-dashed border-zinc-300 hover:border-emerald-500 bg-zinc-100/70 hover:bg-emerald-50/40 flex items-center justify-center app-icon shadow-xs">
             <svg class="w-7 h-7 text-zinc-400 group-hover:text-emerald-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 4v16m8-8H4"/>
             </svg>
@@ -287,6 +360,11 @@
     function handleAppClick(id) {
       const p = projects.find(item => item.id === id);
       if (!p) return;
+
+      if (p.hasConflict) {
+        showToast(`⚠️ 项目 [${p.name}] 端口 :${p.port} 正被占用，请先释放或更换端口！`);
+        return;
+      }
 
       if (p.status === 'running') {
         showToast(`[${p.name}] 正在运行，已唤起默认浏览器: ${p.frontendUrl}`);
@@ -311,6 +389,42 @@
       }, 1600);
     }
 
+    function openEditor(path) {
+      showToast(`💻 正在使用默认编辑器 (VS Code / Cursor) 打开目录: ${path}`);
+    }
+
+    function sleepAllContainers() {
+      const runningProjects = projects.filter(p => p.status === 'running');
+      if (runningProjects.length === 0) {
+        showToast('当前没有正在运行的容器需要休眠');
+        return;
+      }
+      runningProjects.forEach(p => p.status = 'stopped');
+      renderApps();
+      showToast(`🌙 已一键休眠所有项目容器，释放 OrbStack 内存与 CPU！`);
+    }
+
+    function resolvePortConflict(port) {
+      const p = projects.find(item => item.port === port);
+      if (p) {
+        p.hasConflict = false;
+        renderApps();
+        dismissConflict();
+        showToast(`✅ 端口 :${port} 冲突已解除 (已结束占用进程 PID: 34120)`);
+      }
+    }
+
+    function dismissConflict() {
+      document.getElementById('conflictAlert').classList.add('hidden');
+    }
+
+    function cleanOrbCache() {
+      showToast('🧹 正在调用 `docker system prune` 清理未引用的悬空镜像与容器缓存...');
+      setTimeout(() => {
+        showToast('✅ OrbStack 缓存清理完成，已回收约 1.4 GB 磁盘空间！');
+      }, 1200);
+    }
+
     function handleContextMenu(e, id) {
       e.preventDefault();
       selectedProjectId = id;
@@ -332,7 +446,11 @@
       const p = projects.find(item => item.id === selectedProjectId);
       if (!p) return;
 
-      if (type === 'open') {
+      if (type === 'vscode') {
+        openEditor(p.path);
+      } else if (type === 'terminal') {
+        showToast(`🖥️ 正在终端中定位到: ${p.path}`);
+      } else if (type === 'open') {
         window.open(p.frontendUrl, '_blank');
         showToast(`在浏览器中打开: ${p.frontendUrl}`);
       } else if (type === 'launch') {
@@ -350,8 +468,8 @@
         p.status = 'stopped';
         renderApps();
         showToast(`已停止项目 [${p.name}] 容器`);
-      } else if (type === 'logs') {
-        alert(`【日志控制台 - ${p.name}】\n[INFO] Spring Boot started on port 8083\n[INFO] Vite dev server ready at http://localhost:${p.port}`);
+      } else if (type === 'checkPort') {
+        showToast(`🔍 正在扫描端口 :${p.port} 占用状态... [正常，未被其他进程抢占]`);
       } else if (type === 'edit') {
         const newUrl = prompt(`修改 [${p.name}] 的前端打开地址:`, p.frontendUrl);
         if (newUrl) {
