@@ -2,8 +2,8 @@
 
 - **日期**：2026-10-13
 - **项目名称**：Open-Easy
-- **UI 形态**：**macOS 原生品牌色应用图标面板（Apple Native Brand Squircle）**（740x550 独立居中原生毛玻璃窗口）
-- **视觉风格**：深空灰深邃纯净基底（`#1a1a1e`）、经典官方技术栈品牌色（Vue 翡翠绿、Java 暖琥珀、Next 黑曜石、Python 皇家蓝与金）、苹果微倒角高光与 Dock 发光 LED
+- **UI 形态**：**macOS 苹果原生浅色应用图标面板（Clean Studio Light Edition）**（740x550 独立居中原生毛玻璃窗口）
+- **视觉风格**：清透温润的浅灰白基底（`#fbfbfd` / `#f0f0f3`）、经典官方技术栈品牌色 Squircle 应用图标（Vue 翡翠绿、Java 暖琥珀、Next 雅黑、Python 皇家蓝与金）、白色磨砂端口角标与 Dock 翠绿发光 LED
 - **技术栈**：Electron + Vite + Vue 3 + Tailwind CSS + Node.js (Child Process & Docker CLI)
 
 ---
@@ -48,19 +48,19 @@ flowchart TD
     App1 -->|右键| ContextMenu
 ```
 
-### 2.1 视觉要素与规范 (Apple Native Brand Edition)
+### 2.1 视觉要素与规范 (Apple Clean Studio Light Edition)
 1. **App 图标（Squircle）**：
    - 尺寸：80x80px，苹果原生 `border-radius: 22.5%`；
-   - 材质背景：保留各技术栈官方经典品牌配色，配合微渐变与苹果光泽高光（`box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.35), 0 8px 24px -4px rgba(0, 0, 0, 0.45)`）：
+   - 材质背景：保留各技术栈官方经典品牌配色，配合微渐变与浅色高光透亮阴影（`box-shadow: inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.65), 0 10px 22px -4px rgba(0, 0, 0, 0.14), 0 3px 7px -1px rgba(0, 0, 0, 0.08)`）：
      - **Vue**: 翡翠绿与深松绿渐变 (`#42b883` ~ `#35495e`) + 白色立体 Logo
      - **Java**: 经典琥珀棕金与暖红渐变 (`#f39c12` ~ `#d35400`) + 白色立体 Logo
-     - **Next.js / Node**: 极简黑曜石与深银灰 (`#262626` ~ `#000000`) + 细白边框与三角 Logo
+     - **Next.js / Node**: 极简黑曜石与深灰 (`#1f2937` ~ `#111827`) + 白色立体三角 Logo
      - **Python**: 皇家蓝配金黄双色蟒蛇 (`#3776ab` ~ `#1e415f`) + 金色徽标
-   - 右上角端口角标：深色半透明毛玻璃微型 Badge（如 `:8081`、`:90`），清晰可读；
-   - 运行中指示点：图标下方 2px 清脆绿色微光 LED 小圆点（Dock 风格）；
-   - 启动中光晕：图标外圈播放顺滑优雅的白色发光波纹环（Launching Wave 动画）。
+   - 右上角端口角标：白色半透明毛玻璃微型 Badge（如 `:8081`、`:90`），边框温润，清晰醒目；
+   - 运行中指示点：图标下方 2px 清脆浅绿色微光 LED 小圆点（Dock 风格）；
+   - 启动中光晕：图标外圈播放顺滑优雅的浅绿发光波纹环（Launching Wave 动画）。
 2. **右键操作菜单 (Context Menu)**：
-   - 采用深深空灰毛玻璃浮层（`#232328`），配备微细高光分割线与原生 macOS 快捷操作项：
+   - 采用纯白高透毛玻璃浮层（`bg-white/95`），配备微细浅灰分割线与原生 macOS 快捷操作项：
      - `🌐 打开前端网页`
      - `🚀 启动容器`
      - `🔄 重启容器`
