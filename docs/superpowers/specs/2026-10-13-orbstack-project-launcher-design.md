@@ -29,27 +29,32 @@
 
 ```mermaid
 flowchart TD
-    subgraph UI ["Open-Easy (720x550 磨砂玻璃原生窗口)"]
-        Titlebar["标题栏 (交通灯红黄绿 + 居中搜索框 + OrbStack状态)"]
-        subgraph AppGrid ["应用网格 (4列开阔排布)"]
-            App1["Vue 家乡文旅 (Squircle大图标 + 端口角标 + Dock绿色运行圆点)"]
-            App2["Java TLIAS (Squircle大图标 + 端口角标)"]
-            App3["Next 个人博客 (Squircle大图标 + 端口角标)"]
-            AppPlus["➕ 导入新项目 (虚线圆角卡片)"]
-        end
-        ContextMenu["右键菜单 (打开网页 / 停止容器 / 重启 / 查看日志 / 编辑)"]
+    subgraph UI ["Open-Easy (780x540 原生浅色毛玻璃窗口)"]
+        Titlebar["标题栏 (交通灯 + 搜索框 + 一键休眠 🌙 + OrbStack状态)"]
+        AppGrid["应用网格 (4列 Squircle 品牌色大图标)"]
+        DetailModal["居中精致毛玻璃详情弹窗 (Detail Modal)"]
+        HudToast["底部浮动 HUD 胶囊 (非侵入式反馈)"]
     end
 
-    subgraph ClickFlow ["左键点击交互"]
-        StateCheck{是否已在运行?}
-        Launch["触发启动动画 + compose up -d + 探活轮询"]
-        OpenWeb["调用系统浏览器打开 URL"]
+    AppGrid -->|单击应用图标| DetailModal
+    
+    subgraph ModalActions ["详情弹窗内部操作"]
+        StartAction["🚀 一键启动并进入前端网页"]
+        OpenWeb["🌐 在浏览器中打开"]
+        StopAction["⏹ 停止全部容器"]
+        IdeAction["💻 在 VS Code / Cursor / 终端打开"]
+        ContList["容器清单 (前端、后端、数据库各自端口与状态)"]
+        UrlConfig["自定义前端打开 URL 与端口状态检测"]
     end
 
-    App2 -->|单击| StateCheck
-    StateCheck -->|未运行| Launch -->|端口探活成功| OpenWeb
-    StateCheck -->|已在运行| OpenWeb
-    App1 -->|右键| ContextMenu
+    DetailModal --> StartAction
+    DetailModal --> OpenWeb
+    DetailModal --> StopAction
+    DetailModal --> IdeAction
+    DetailModal --> ContList
+    DetailModal --> UrlConfig
+    StartAction -->|探活就绪| OpenWeb
+    StartAction -->|触发通知| HudToast
 ```
 
 ### 2.1 视觉要素与规范 (Apple Clean Studio Light Edition)
