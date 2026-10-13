@@ -1,0 +1,29 @@
+{
+  "name": "open-easy",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "description": "macOS Docker & Compose native app launcher with OrbStack auto-healing",
+  "main": "electron/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev:vite": "vite",
+    "dev:electron": "wait-on tcp:5173 && VITE_DEV=true electron .",
+    "dev": "concurrently -k -p \"[{name}]\" -n \"VITE,ELECTRON\" -c \"cyan.bold,green.bold\" \"npm run dev:vite\" \"npm run dev:electron\"",
+    "build:vue": "vite build",
+    "test": "node --test tests/*.test.js"
+  },
+  "dependencies": {
+    "vue": "^3.4.38"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.1.2",
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^8.2.2",
+    "electron": "^32.0.0",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.10",
+    "vite": "^5.4.2",
+    "wait-on": "^8.0.0"
+  }
+}
