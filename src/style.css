@@ -2,6 +2,109 @@
 @tailwind components;
 @tailwind utilities;
 
+.window-drag {
+  -webkit-app-region: drag;
+}
+
+.window-no-drag {
+  -webkit-app-region: no-drag;
+}
+
+/* VisionOS / Spatial Frosted Glass Material System */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.58);
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.04), 
+              0 4px 12px -2px rgba(0, 0, 0, 0.02), 
+              inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.85);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.04), 
+              0 2px 6px -1px rgba(0, 0, 0, 0.02), 
+              inset 0 1px 1px 0 rgba(255, 255, 255, 0.95);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 14px 32px -4px rgba(0, 0, 0, 0.06), 
+              0 4px 10px -1px rgba(0, 0, 0, 0.03), 
+              inset 0 1px 1px 0 #ffffff;
+}
+
+/* High-Contrast Charcoal Obsidian Glass (Ref 1 Inspiration) */
+.glass-obsidian {
+  background: rgba(26, 29, 33, 0.88);
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.22), 
+              inset 0 1px 1px 0 rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+/* Floating Capsule Docks (Ref 1 & Ref 2 Inspiration) */
+.capsule-dock {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.07), 
+              0 4px 12px -2px rgba(0, 0, 0, 0.03), 
+              inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.95);
+}
+
+.capsule-dock-dark {
+  background: rgba(24, 26, 29, 0.86);
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 14px 36px -4px rgba(0, 0, 0, 0.26), 
+              inset 0 1px 1px 0 rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+}
+
+/* VisionOS Dark Mode Spatial Glass */
+.dark .glass-panel {
+  background: rgba(24, 25, 28, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.5), 
+              0 4px 12px -2px rgba(0, 0, 0, 0.3), 
+              inset 0 1px 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.dark .glass-card {
+  background: rgba(30, 31, 35, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4), 
+              0 2px 6px -1px rgba(0, 0, 0, 0.25), 
+              inset 0 1px 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.dark .glass-card:hover {
+  background: rgba(40, 42, 48, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 14px 32px -4px rgba(0, 0, 0, 0.6), 
+              0 4px 10px -1px rgba(0, 0, 0, 0.35), 
+              inset 0 1px 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.dark .capsule-dock {
+  background: rgba(28, 29, 33, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.5), 
+              0 4px 12px -2px rgba(0, 0, 0, 0.3), 
+              inset 0 1px 1px 0 rgba(255, 255, 255, 0.14);
+}
+
 @keyframes launch-wave-light {
   0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
   70% { box-shadow: 0 0 0 12px rgba(16, 185, 129, 0); }
@@ -35,11 +138,11 @@
 }
 
 .led-green-light {
-  box-shadow: 0 0 6px #10b981;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.8);
 }
 
 .led-amber-light {
-  box-shadow: 0 0 6px #f59e0b;
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.8);
 }
 
 @keyframes hud-in {
@@ -52,10 +155,29 @@
 }
 
 @keyframes modal-pop {
-  from { opacity: 0; transform: scale(0.93) translateY(8px); }
+  from { opacity: 0; transform: scale(0.94) translateY(10px); }
   to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 .modal-animate {
-  animation: modal-pop 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: modal-pop 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Custom Sleek Scrollbars */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.14);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.26);
 }

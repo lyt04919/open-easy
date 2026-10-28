@@ -17,6 +17,34 @@
 
 ---
 
+## 📥 下载与安装 (Download)
+
+前往 [GitHub Releases 页面](https://github.com/lyt04919/open-easy/releases/latest) 下载最新发布的安装包：
+
+| 芯片架构 | 适用机型 | 下载文件 |
+| :--- | :--- | :--- |
+| **Apple Silicon** | M1 / M2 / M3 / M4 芯片 Mac | `Open-Easy-x.x.x-arm64.dmg` |
+| **Intel Mac** | x86_64 传统 Intel 芯片 Mac | `Open-Easy-x.x.x-x86_64.dmg` |
+
+### 🍏 安装步骤
+1. 双击打开下载好的 `.dmg` 磁盘镜像文件；
+2. 将 **Open-Easy.app** 拖动至 **Applications (应用程序)** 替身文件夹中即可完成安装。
+
+> [!IMPORTANT]
+> **首次打开提示「已损坏，无法打开」或「无法验证开发者」？**
+>
+> Open-Easy 是开源免费软件，未购买苹果商业开发者签名证书（$99/年），macOS Gatekeeper 安全机制会自动添加隔离标识属性。请任选以下一种方式即可正常打开：
+>
+> - **方法一（推荐，仅需执行一次）**：
+>   打开「终端」(Terminal)，复制执行以下命令即可解除安全隔离：
+>   ```bash
+>   xattr -cr /Applications/Open-Easy.app
+>   ```
+> - **方法二**：
+>   进入 macOS **「访达」 -> 「应用程序」**，找到 `Open-Easy` 图标，**按住 Control 键点按（或右键）**选择**「打开」**，在弹出的警告框中再次点击**「打开」**即可。
+
+---
+
 ## ✨ 核心特性
 
 - 🍏 **Apple Clean Studio 原生质感**：780×560 原生毛玻璃窗口（`#fbfbfd`），交通灯无缝内嵌，Squircle 苹果圆角高光图标；
@@ -110,10 +138,13 @@ npm run dev
 ```
 > 同时调起 Vite 热更新服务与 Electron 桌面客户端。
 
-### 4. 运行已构建的客户端
+### 4. 本地打包构建与安装
 ```bash
-npm run build:vue
-npm start
+# 本地快速组装 .app 并直接安装至 /Applications 目录
+npm run build:app
+
+# 制作公开发布用的 .dmg 镜像与 .zip 压缩包 (输出到 release/ 目录)
+npm run package:dmg
 ```
 
 ---
@@ -122,30 +153,43 @@ npm start
 
 ```text
 open-easy/
+├── .github/
+│   └── workflows/release.yml    # GitHub Actions 自动化多架构 DMG/ZIP 发布流水线
+├── build/
+│   ├── icon.icns                # 1024×1024 高清 macOS 原生应用图标
+│   └── icon.png                 # 高清预览图标
 ├── electron/
 │   ├── main.js                  # Electron 主进程入口与 IPC 通信调度
-│   ├── preload.cjs              # 安全 ContextBridge 预加载脚本
+│   ├── preload.cjs              # 安全 ContextBridge 预加载桥接
 │   └── services/
 │       ├── orbManager.js        # OrbStack 自愈唤醒与 Compose 容器生命周期管理
 │       ├── healthChecker.js     # 前端服务毫秒级轮询探针
 │       ├── portDiagnostics.js   # lsof 端口冲突检测与进程释放
+│       ├── databaseHelper.js    # 数据库连接探测、备份与交互终端
 │       ├── editorOpener.js      # VS Code / Cursor / 终端 / 访达系统联动
 │       └── store.js             # 用户配置持久化存储服务
 ├── src/
 │   ├── components/
-│   │   ├── Header.vue           # 顶部原生标题栏、搜索过滤与休眠按钮
-│   │   ├── AppIcon.vue          # 技术品牌色 Squircle 图标与 Dock 运行指示点
-│   │   ├── ProjectDetailModal.vue # 居中毛玻璃详情面板与微服务清单
-│   │   ├── HudToast.vue         # 底部浮动毛玻璃 HUD 提示胶囊
-│   │   └── FooterBar.vue        # 底部状态栏与一键缓存清理
-│   ├── App.vue                  # 客户端主页面与状态管理
+│   │   ├── Header.vue           # 顶部原生磨砂标题栏、快捷搜索与窗口控制
+│   │   ├── BentoHeroStats.vue   # 便捷控制中心（运行统计、一键休眠、清理缓存、端口监控）
+│   │   ├── BentoProjectCard.vue # 现代网格项目卡片与技术栈品牌徽标
+│   │   ├── ProjectDetailModal.vue # 居中毛玻璃详情面板与微服务编排
+│   │   ├── FloatingDock.vue     # 现代化全局悬浮 Dock
+│   │   ├── PortManagerView.vue  # 全局端口占用与冲突诊断监控抽屉
+│   │   ├── OrbStackSyncModal.vue# OrbStack 已部署容器一键快速同步抽屉
+│   │   ├── SettingsModal.vue    # 原生比例应用设置偏好弹窗
+│   │   └── detail/              # 详情弹窗微服务清单、日志流与终端面板
+│   ├── App.vue                  # 客户端主页面与核心状态管理
 │   ├── main.js                  # Vue 应用挂载入口
-│   └── style.css                # Tailwind 与原生质感动效定义
-├── tests/                       # 自动化单元测试套件
-├── docs/                        # 设计规格说明书与实施计划
-├── index.html                   # Vite HTML 模板
-├── package.json                 # 依赖配置与启动脚本
-└── vite.config.js               # Vite 打包配置
+│   └── style.css                # Tailwind 与原生毛玻璃质感
+├── scripts/
+│   ├── build-mac-app.sh         # macOS 原生 Open-Easy.app 组装与本地安装脚本
+│   ├── package-dmg.sh           # DMG 磁盘映像与便携 ZIP 自动化打包脚本
+│   └── generate-icon.py         # 图标自动合成与多分辨率 ICNS 编译脚本
+├── tests/                       # 自动化单元测试套件 (50 个单元测试通过)
+├── LICENSE                      # MIT 开源协议
+├── package.json                 # 依赖配置与打包脚本
+└── vite.config.js               # Vite 前端构建配置
 ```
 
 ---

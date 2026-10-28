@@ -11,6 +11,8 @@
     "dev:electron": "wait-on tcp:5173 && VITE_DEV=true electron .",
     "dev": "concurrently -k -p \"[{name}]\" -n \"VITE,ELECTRON\" -c \"cyan.bold,green.bold\" \"npm run dev:vite\" \"npm run dev:electron\"",
     "build:vue": "vite build",
+    "build:app": "bash scripts/build-mac-app.sh",
+    "package:dmg": "bash scripts/package-dmg.sh",
     "test": "node --test tests/*.test.js"
   },
   "dependencies": {
