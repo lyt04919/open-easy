@@ -47,6 +47,10 @@ export async function checkOrbStatus() {
  * Auto-healing: Silently wakes OrbStack if not running and waits for Docker socket
  */
 export async function ensureOrbRunning() {
+  if (process.env.CI) {
+    return { autoStarted: false, alreadyRunning: false, isCI: true };
+  }
+
   const initial = await checkOrbStatus();
   if (initial.running) {
     return { autoStarted: false, alreadyRunning: true };
@@ -670,12 +674,12 @@ export async function startService(composeFilePath, serviceName) {
   if (!serviceName || typeof serviceName !== 'string') {
     throw new Error('服务名不能为空');
   }
-  await ensureOrbRunning();
-  const dir = path.dirname(composeFilePath);
   const cleanSvc = serviceName.trim().replace(/[^a-zA-Z0-9_.-]/g, '');
   if (!cleanSvc) {
     throw new Error('无效的服务名');
   }
+  await ensureOrbRunning();
+  const dir = path.dirname(composeFilePath);
   const { stdout, stderr, error } = await runCmd(
     `docker compose -f "${composeFilePath}" up -d ${cleanSvc}`,
     { cwd: dir, timeout: 60000 }
@@ -725,12 +729,12 @@ export async function restartService(composeFilePath, serviceName) {
   if (!serviceName || typeof serviceName !== 'string') {
     throw new Error('服务名不能为空');
   }
-  await ensureOrbRunning();
-  const dir = path.dirname(composeFilePath);
   const cleanSvc = serviceName.trim().replace(/[^a-zA-Z0-9_.-]/g, '');
   if (!cleanSvc) {
     throw new Error('无效的服务名');
   }
+  await ensureOrbRunning();
+  const dir = path.dirname(composeFilePath);
   const { stdout, stderr, error } = await runCmd(
     `docker compose -f "${composeFilePath}" restart ${cleanSvc}`,
     { cwd: dir, timeout: 45000 }
@@ -1210,7 +1214,11 @@ export async function getProjectResourceUsage(composeFilePath) {
  * Query OrbStack directly for all registered and deployed Compose projects
  */
 export async function getOrbStackDeployedProjects() {
-  await ensureOrbRunning();
+  try {
+    await ensureOrbRunning();
+  } catch {
+    return [];
+  }
   const { stdout, error } = await runCmd('docker compose ls --all --format json');
   if (error || !stdout) {
     return [];
