@@ -17,8 +17,8 @@ def create_mac_icon():
     offset = (canvas_size - target_size) // 2  # 100
     radius = 185  # Apple standard 22.5% corner radius for 824px
 
-    # Crop the central squircle from the 3D rendered master
-    crop_box = (173, 173, 849, 849)
+    # Crop the central squircle from the 3D rendered master (Concept 2: Tactile Engraved Orb Fusion)
+    crop_box = (114, 114, 910, 910)
     squircle_crop = raw_img.crop(crop_box)
     squircle_resized = squircle_crop.resize((target_size, target_size), Image.Resampling.LANCZOS)
 

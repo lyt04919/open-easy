@@ -26,13 +26,14 @@ mv "$APP_DIR/Contents/MacOS/Electron" "$APP_DIR/Contents/MacOS/Open-Easy"
 
 # 修改 Info.plist 元数据
 PLIST="$APP_DIR/Contents/Info.plist"
+APP_VER=$(node -p "require('./package.json').version")
 /usr/libexec/PlistBuddy -c "Set :CFBundleName Open-Easy" "$PLIST"
 /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName Open-Easy" "$PLIST"
 /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier com.yuteng.openeasy" "$PLIST"
 /usr/libexec/PlistBuddy -c "Set :CFBundleExecutable Open-Easy" "$PLIST"
 /usr/libexec/PlistBuddy -c "Set :CFBundleIconFile icon.icns" "$PLIST"
-/usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString 1.0.0" "$PLIST"
-/usr/libexec/PlistBuddy -c "Set :CFBundleVersion 1.0.0" "$PLIST"
+/usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $APP_VER" "$PLIST"
+/usr/libexec/PlistBuddy -c "Set :CFBundleVersion $APP_VER" "$PLIST"
 
 # 注入高清应用图标
 cp "build/icon.icns" "$APP_DIR/Contents/Resources/icon.icns"

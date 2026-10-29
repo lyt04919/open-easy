@@ -1,6 +1,6 @@
 {
   "name": "open-easy",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "private": true,
   "description": "macOS Docker & Compose native app launcher with OrbStack auto-healing",
